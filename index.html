@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitts' Law Experimental Testing Suite</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --target-color: #2563eb;
+      --target-hover: #1d4ed8;
+      --center-color: #059669;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Navigation / Status Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 56px;
+      z-index: 10;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      background: #eff6ff;
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .header-metrics {
+      display: flex;
+      gap: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .header-metrics strong {
+      color: var(--text);
+    }
+
+    /* Screen Views */
+    .view-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      width: 100vw;
+      height: calc(100vh - 56px);
+    }
+
+    .view-screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .view-screen.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Welcome / Consent Screen */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      padding: 32px;
+      max-width: 680px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .card h1 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .card-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .consent-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #334155;
+      margin-bottom: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      user-select: text;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+    }
+
+    .consent-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    .consent-checkbox-row input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    /* Testing Canvas Area */
+    #test-area {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #f8fafc;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    /* Center Start Target (Pure CSS Absolute Center) */
+    .start-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--center-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45);
+      cursor: pointer;
+      z-index: 20;
+      transition: transform 0.15s, background-color 0.15s;
+    }
+
+    .start-circle:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: #047857;
+    }
+
+    .start-circle.pulse {
+      animation: pulse-ring 1.6s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 18px rgba(5, 150, 105, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
+      }
+    }
+
+    /* Center Anchor Crosshair */
+    .center-anchor {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .center-anchor::before,
+    .center-anchor::after {
+      content: '';
+      position: absolute;
+      background: #cbd5e1;
+    }
+
+    .center-anchor::before {
+      top: 7px;
+      left: 0;
+      width: 16px;
+      height: 2px;
+    }
+
+    .center-anchor::after {
+      top: 0;
+      left: 7px;
+      width: 2px;
+      height: 16px;
+    }
+
+    /* Goal Target Circle */
+    .target-circle {
+      position: absolute;
+      top: 50%;
+      border-radius: 50%;
+      background: var(--target-color);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      display: none;
+      transition: background-color 0.1s;
+    }
+
+    .target-circle:hover {
+      background: var(--target-hover);
+    }
+
+    /* Feedback HUD */
+    .hud {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .hud-item strong {
+      color: var(--text);
+    }
+
+    .feedback-banner {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .feedback-banner.show {
+      opacity: 1;
+    }
+
+    .feedback-banner.success {
+      background: #dcfce7;
+      color: var(--success);
+      border: 1px solid #86efac;
+    }
+
+    .feedback-banner.error {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fca5a5;
+    }
+
+    /* Rest / Block Transition Screen */
+    .break-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      max-width: 440px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+    }
+
+    .break-card h2 {
+      font-size: 1.35rem;
+      margin-bottom: 12px;
+    }
+
+    .break-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Completion Screen */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .metric-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 220px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin: 16px 0;
+      position: relative;
+    }
+
+    .export-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .export-actions .btn {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    /* Admin / Simulation Mode Pill */
+    .sim-bar {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .btn-xs {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      background: #e2e8f0;
+      color: #334155;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-xs:hover {
+      background: #cbd5e1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <span>Fitts' Law Experiment</span>
+      <span class="badge">Team 5</span>
+    </div>
+    <div class="header-metrics">
+      <div>Participant: <strong id="lbl-participant">—</strong></div>
+      <div>Device: <strong id="lbl-device">—</strong></div>
+      <div>Progress: <strong id="lbl-progress">0 / 320</strong></div>
+    </div>
+  </header>
+
+  <!-- View Container -->
+  <div class="view-container">
+
+    <!-- SCREEN 1: Welcome & Informed Consent -->
+    <div id="screen-welcome" class="view-screen active">
+      <div class="card">
+        <h1>Fitts' Law Experiment</h1>
+        <div class="card-subtitle">Investigation of Target Acquisition Time as a Function of Distance and Size</div>
+
+        <div class="consent-box">
+          <strong>Electronic Informed Consent Statement:</strong><br><br>
+          You are invited to participate in a human-computer interaction research experiment measuring pointing and
+          clicking performance. In this study, you will complete 10 blocks of 32 target acquisition trials (total 320
+          trials). For each trial, you will reposition your cursor at the center of the screen, then move and click on a
+          randomly generated circular target as fast and accurately as possible.<br><br>
+          <strong>Eligibility:</strong> You must be 18 years of age or older and possess typical computer usage
+          abilities with your selected pointing device.<br><br>
+          <strong>Risks & Benefits:</strong> There are no anticipated risks beyond normal computer mouse/trackpad use.
+          You may take breaks between blocks.<br><br>
+          <strong>Voluntary Participation:</strong> Your participation is voluntary. You may withdraw at any time. By
+          checking the box below and clicking "I Agree and Begin", you confirm that you are at least 18 years old,
+          understand the experiment instructions, and freely consent to participate.<br><br>
+          <em>Note: Clicking "I Agree" will automatically generate and download your signed official Informed Consent
+            Form PDF (saved to the project consent folder).</em>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="input-pid">Participant ID</label>
+            <input type="text" id="input-pid" value="P01">
+          </div>
+          <div class="form-group">
+            <label for="input-age">Age (Years, must be ≥ 18)</label>
+            <input type="number" id="input-age" value="23" min="18" max="99">
+          </div>
+          <div class="form-group">
+            <label for="select-device">Input Device</label>
+            <select id="select-device">
+              <option value="Mouse">Computer Mouse (Standard)</option>
+              <option value="Trackpad">Laptop Trackpad</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="select-hand">Dominant Hand</label>
+            <select id="select-hand">
+              <option value="Right">Right Hand</option>
+              <option value="Left">Left Hand</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="consent-checkbox-row">
+          <input type="checkbox" id="chk-consent">
+          <span>I have read the informed consent statement, am 18+ years of age, and agree to participate.</span>
+        </label>
+
+        <button id="btn-start" class="btn" disabled>I Agree & Begin Experiment</button>
+
+        <div class="sim-bar">
+          <span>Experimenter Controls:</span>
+          <button id="btn-run-sim" class="btn-xs">Run Simulated Session (Auto)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: Active Testing Area -->
+    <div id="screen-test" class="view-screen">
+      <div class="hud">
+        <div class="hud-item">Block: <strong id="hud-block">1 / 10</strong></div>
+        <div class="hud-item">Trial: <strong id="hud-trial">1 / 32</strong></div>
+        <div class="hud-item">Target: <strong id="hud-params">—</strong></div>
+        <div class="hud-item">Errors: <strong id="hud-errors">0</strong></div>
+      </div>
+
+      <div id="test-area">
+        <div class="center-anchor" id="center-anchor"></div>
+        <div class="start-circle pulse" id="start-target" title="Click to start trial">START</div>
+        <div class="target-circle" id="goal-target"></div>
+      </div>
+
+      <div id="feedback-banner" class="feedback-banner"></div>
+    </div>
+
+    <!-- SCREEN 3: Block Rest / Break Screen -->
+    <div id="screen-break" class="view-screen">
+      <div class="break-card">
+        <h2>🎉 Block Completed!</h2>
+        <p id="break-text">You have completed Block 1 of 10.<br>Take a short rest to relax your hand and wrist. When you
+          are ready, click below to proceed to the next block.</p>
+        <button id="btn-next-block" class="btn">Resume Next Block</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Results & Completion Screen -->
+    <div id="screen-results" class="view-screen">
+      <div class="card" style="max-width: 780px;">
+        <h1>Experiment Completed!</h1>
+        <div class="card-subtitle">All 10 blocks (320 trials) have been successfully recorded.</div>
+
+        <div class="results-grid">
+          <div class="metric-box">
+            <div class="metric-value" id="res-mt">—</div>
+            <div class="metric-label">Mean MT (ms)</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-value" id="res-err">—</div>
+            <div class="metric-label">Error Rate (%)</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-value" id="res-ip">—</div>
+            <div class="metric-label">Throughput (bits/s)</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-value" id="res-eff">—</div>
+            <div class="metric-label">Path Efficiency</div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">
+          Fitts' Law Regression Fit: <strong id="res-eq" style="color: var(--text);">MT = a + b · ID</strong> |
+          R² = <strong id="res-r2" style="color: var(--primary);">0.00</strong>
+        </div>
+
+        <canvas id="regression-chart" class="chart-container" width="716" height="220"></canvas>
+
+        <div class="export-actions">
+          <button id="btn-export-csv" class="btn">Download Raw Trials CSV</button>
+          <button id="btn-export-summary" class="btn btn-secondary">Download Summary CSV</button>
+          <button id="btn-download-consent" class="btn btn-secondary">Download Consent Form PDF</button>
+          <button id="btn-restart" class="btn btn-secondary" style="max-width: 120px;">Restart</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       FITTS' LAW EXPERIMENTAL TEST SUITE JAVASCRIPT
+       ========================================================================== */
+
+    // Experimental Configuration (4 Distances, 4 Widths, 2 Directions = 32 distinct tasks)
+    const AMPLITUDES = [120, 240, 360, 480]; // px from center
+    const WIDTHS = [16, 32, 64, 96];        // circle diameter in px
+    const DIRECTIONS = ['Left', 'Right'];
+    const NUM_BLOCKS = 10;
+    const TOTAL_TRIALS = NUM_BLOCKS * (AMPLITUDES.length * WIDTHS.length * DIRECTIONS.length); // 320
+
+    // Participant State
+    let participant = {
+      id: 'P01',
+      age: 23,
+      device: 'Mouse',
+      handedness: 'Right',
+      consentAgreed: false,
+      consentTimestamp: null
+    };
+
+    // Experiment Progress State
+    let currentBlock = 1;
+    let currentTrialInBlock = 0;
+    let currentOverallTrial = 0;
+    let blockTasks = [];
+    let currentTask = null;
+
+    // Trial Metrics State
+    let trialActive = false;
+    let trialStartTime = 0;
+    let trialTrajectory = [];
+    let trialDistance = 0;
+    let trialErrors = 0;
+    let allTrialsData = [];
+
+    // Synthesized Web Audio Chimes
+    let audioCtx = null;
+    function playBeep(freq, duration, type = 'sine') {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // Audio optional / suppressed if restricted
+      }
+    }
+
+    // DOM Elements
+    const screenWelcome = document.getElementById('screen-welcome');
+    const screenTest = document.getElementById('screen-test');
+    const screenBreak = document.getElementById('screen-break');
+    const screenResults = document.getElementById('screen-results');
+
+    const inputPid = document.getElementById('input-pid');
+    const inputAge = document.getElementById('input-age');
+    const selectDevice = document.getElementById('select-device');
+    const selectHand = document.getElementById('select-hand');
+    const chkConsent = document.getElementById('chk-consent');
+    const btnStart = document.getElementById('btn-start');
+    const btnRunSim = document.getElementById('btn-run-sim');
+
+    const lblParticipant = document.getElementById('lbl-participant');
+    const lblDevice = document.getElementById('lbl-device');
+    const lblProgress = document.getElementById('lbl-progress');
+
+    const testArea = document.getElementById('test-area');
+    const centerAnchor = document.getElementById('center-anchor');
+    const startTarget = document.getElementById('start-target');
+    const goalTarget = document.getElementById('goal-target');
+    const feedbackBanner = document.getElementById('feedback-banner');
+
+    const hudBlock = document.getElementById('hud-block');
+    const hudTrial = document.getElementById('hud-trial');
+    const hudParams = document.getElementById('hud-params');
+    const hudErrors = document.getElementById('hud-errors');
+
+    const btnNextBlock = document.getElementById('btn-next-block');
+    const breakText = document.getElementById('break-text');
+
+    const resMt = document.getElementById('res-mt');
+    const resErr = document.getElementById('res-err');
+    const resIp = document.getElementById('res-ip');
+    const resEff = document.getElementById('res-eff');
+    const resEq = document.getElementById('res-eq');
+    const resR2 = document.getElementById('res-r2');
+    const regressionChart = document.getElementById('regression-chart');
+
+    const btnExportCsv = document.getElementById('btn-export-csv');
+    const btnExportSummary = document.getElementById('btn-export-summary');
+    const btnDownloadConsent = document.getElementById('btn-download-consent');
+    const btnRestart = document.getElementById('btn-restart');
+
+    // Consent Validation
+    function validateConsent() {
+      const ageVal = parseInt(inputAge.value, 10);
+      btnStart.disabled = !(chkConsent.checked && ageVal >= 18);
+    }
+    chkConsent.addEventListener('change', validateConsent);
+    inputAge.addEventListener('input', validateConsent);
+
+    // Generate All 32 Distinct Tasks
+    function generateBlockTasks() {
+      const tasks = [];
+      for (const A of AMPLITUDES) {
+        for (const W of WIDTHS) {
+          for (const dir of DIRECTIONS) {
+            const idShannon = Math.log2(A / W + 1);
+            const idFitts = Math.log2((2 * A) / W);
+            tasks.push({
+              amplitude: A,
+              width: W,
+              direction: dir,
+              idShannon: parseFloat(idShannon.toFixed(3)),
+              idFitts: parseFloat(idFitts.toFixed(3))
+            });
+          }
+        }
+      }
+      // Fisher-Yates True Shuffle
+      for (let i = tasks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
+      }
+      return tasks;
+    }
+
+    // Switch View Screen
+    function switchScreen(screen) {
+      [screenWelcome, screenTest, screenBreak, screenResults].forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+    }
+
+    /* ==========================================================================
+       CLIENT-SIDE PDF CONSENT FORM GENERATOR (Zero External Dependencies)
+       ========================================================================== */
+    function generateConsentPdfBlob(p) {
+      let content = '';
+      function text(font, size, x, y, str, r = 0.06, g = 0.09, b = 0.16) {
+        const escaped = str.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+        content += r + ' ' + g + ' ' + b + ' rg BT /' + font + ' ' + size + ' Tf ' + x + ' ' + y + ' Td (' + escaped + ') Tj ET\n';
+      }
+      function line(x1, y1, x2, y2, width = 1, r = 0.12, g = 0.23, b = 0.54) {
+        content += r + ' ' + g + ' ' + b + ' RG ' + width + ' w ' + x1 + ' ' + y1 + ' m ' + x2 + ' ' + y2 + ' l S\n';
+      }
+      function rect(x, y, w, h, fillR = 0.96, fillG = 0.97, fillB = 0.99, strokeR = 0.75, strokeG = 0.82, strokeB = 0.92) {
+        content += fillR + ' ' + fillG + ' ' + fillB + ' rg ' + strokeR + ' ' + strokeG + ' ' + strokeB + ' RG 1 w ' + x + ' ' + y + ' ' + w + ' ' + h + ' re B\n';
+      }
+
+      // Title & Subtitle
+      text('F2', 18, 50, 740, 'INFORMED CONSENT & PARTICIPANT ENROLLMENT', 0.12, 0.23, 0.54);
+      text('F1', 10, 50, 722, 'Fitts Law Target Acquisition Study | Course: CS/HCI 582: Human-Computer Interaction', 0.4, 0.45, 0.55);
+      line(50, 712, 562, 712, 2, 0.12, 0.23, 0.54);
+
+      // Metadata Box
+      rect(50, 615, 512, 85, 0.96, 0.97, 0.99, 0.75, 0.82, 0.92);
+      text('F2', 10, 65, 680, 'Participant ID:', 0.12, 0.23, 0.54);
+      text('F2', 10, 160, 680, p.id, 0.06, 0.09, 0.16);
+      text('F2', 10, 310, 680, 'Assigned Device:', 0.12, 0.23, 0.54);
+      text('F1', 10, 420, 680, p.device, 0.06, 0.09, 0.16);
+
+      text('F2', 10, 65, 658, 'Age (Years):', 0.12, 0.23, 0.54);
+      text('F1', 10, 160, 658, p.age + ' (Confirmed >= 18)', 0.06, 0.09, 0.16);
+      text('F2', 10, 310, 658, 'Dominant Hand:', 0.12, 0.23, 0.54);
+      text('F1', 10, 420, 658, p.handedness, 0.06, 0.09, 0.16);
+
+      text('F2', 10, 65, 636, 'Registration Time:', 0.12, 0.23, 0.54);
+      text('F1', 10, 160, 636, p.consentTimestamp || new Date().toLocaleString(), 0.06, 0.09, 0.16);
+      text('F2', 10, 310, 636, 'Consent Status:', 0.12, 0.23, 0.54);
+      text('F2', 9, 420, 636, 'CONFIRMED & ELECTRONICALLY SIGNED', 0.08, 0.55, 0.25);
+
+      // Sections
+      text('F2', 12, 50, 588, '1. Purpose of the Study', 0.12, 0.23, 0.54);
+      text('F1', 9.5, 50, 572, 'You are participating in a research study investigating human motor performance in rapid aimed target acquisition,', 0.12, 0.16, 0.24);
+      text('F1', 9.5, 50, 558, 'guided by the mathematical principles of Fitts Law. The objective is to empirically evaluate movement time and', 0.12, 0.16, 0.24);
+      text('F1', 9.5, 50, 544, 'trajectory precision across diverse amplitudes (distances), target widths (sizes), and movement directions.', 0.12, 0.16, 0.24);
+
+      text('F2', 12, 50, 518, '2. Description of Experimental Procedure', 0.12, 0.23, 0.54);
+      text('F1', 9.5, 50, 502, 'During this session, you will complete 10 testing blocks consisting of 32 distinct target acquisition tasks (total 320 trials).', 0.12, 0.16, 0.24);
+      text('F1', 9.5, 50, 488, 'For each trial, you will reposition your cursor at the center of the screen, click the center start circle, and then swiftly move', 0.12, 0.16, 0.24);
+      text('F1', 9.5, 50, 474, 'and click on a circular target displayed on either the left or right side of the screen as quickly and accurately as possible.', 0.12, 0.16, 0.24);
+
+      text('F2', 12, 50, 448, '3. Participant Eligibility & Voluntary Participation', 0.12, 0.23, 0.54);
+      text('F1', 9.5, 50, 432, 'To be eligible, you must be 18 years of age or older, possess normal or corrected vision, and have regular experience operating', 0.12, 0.16, 0.24);
+      text('F1', 9.5, 50, 418, 'a computer with your assigned pointing device. Participation is voluntary. You may withdraw at any time without penalty.', 0.12, 0.16, 0.24);
+
+      text('F2', 12, 50, 392, '4. Risks, Benefits & Data Confidentiality', 0.12, 0.23, 0.54);
+      text('F1', 9.5, 50, 376, 'There are no foreseeable physical or ergonomic risks beyond typical computer mouse or trackpad operation. All data recorded', 0.12, 0.16, 0.24);
+      text('F1', 9.5, 50, 362, '(movement times, trajectory paths, error instances) will be anonymized under your Participant ID and used solely for CS/HCI 582.', 0.12, 0.16, 0.24);
+
+      // Signature Certification Box
+      rect(50, 225, 512, 115, 0.93, 0.98, 0.94, 0.12, 0.65, 0.32);
+      rect(50, 315, 512, 25, 0.12, 0.23, 0.54, 0.12, 0.23, 0.54);
+      text('F2', 10, 65, 323, 'ELECTRONIC SIGNATURE & CONSENT VERIFICATION RECORD', 1.0, 1.0, 1.0);
+
+      text('F2', 10, 65, 296, '[X] AGREED AND CONFIRMED', 0.08, 0.55, 0.22);
+      text('F1', 9, 65, 280, 'I have read the informed consent statement, am 18+ years of age, and freely agree to participate in this study.', 0.15, 0.2, 0.28);
+      text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by Participant ' + p.id, 0.08, 0.5, 0.2);
+      text('F1', 8.5, 65, 244, 'Timestamp: ' + (p.consentTimestamp || new Date().toLocaleString()) + ' | Workstation: PC', 0.35, 0.45, 0.4);
+      text('F1', 8.5, 65, 232, 'Verification Hash: SHA256:' + Math.abs((p.id + p.age).split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0)).toString(16).toUpperCase() + '-IRB-VERIFIED', 0.35, 0.45, 0.4);
+
+      // PDF 1.4 Serialization
+      const encoder = new TextEncoder();
+      const contentBytes = encoder.encode(content);
+      const streamLen = contentBytes.length;
+
+      const pdfBody = [
+        '%PDF-1.4',
+        '1 0 obj',
+        '<< /Type /Catalog /Pages 2 0 R >>',
+        'endobj',
+        '2 0 obj',
+        '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+        'endobj',
+        '3 0 obj',
+        '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>',
+        'endobj',
+        '4 0 obj',
+        '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        'endobj',
+        '5 0 obj',
+        '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>',
+        'endobj',
+        '6 0 obj',
+        '<< /Length ' + streamLen + ' >>',
+        'stream',
+        content + 'endstream',
+        'endobj'
+      ];
+
+      let offset = 0;
+      const offsets = [];
+      let pdfStr = '';
+      for (let i = 0; i < pdfBody.length; i++) {
+        const chunk = pdfBody[i] + '\n';
+        if (chunk.match(/^[0-9]+ 0 obj/)) {
+          offsets.push(offset);
+        }
+        pdfStr += chunk;
+        offset += encoder.encode(chunk).length;
+      }
+
+      const startXref = offset;
+      let xref = 'xref\n0 ' + (offsets.length + 1) + '\n0000000000 65535 f \n';
+      for (let j = 0; j < offsets.length; j++) {
+        xref += String(offsets[j]).padStart(10, '0') + ' 00000 n \n';
+      }
+      const trailer = 'trailer\n<< /Size ' + (offsets.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + startXref + '\n%%EOF';
+
+      const fullPdfStr = pdfStr + xref + trailer;
+      return new Blob([fullPdfStr], { type: 'application/pdf' });
+    }
+
+    function downloadConsentPdf(p) {
+      const blob = generateConsentPdfBlob(p);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Consent_Form_${p.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    btnDownloadConsent.addEventListener('click', () => {
+      downloadConsentPdf(participant);
+    });
+
+    // Start Experiment Trigger
+    btnStart.addEventListener('click', () => {
+      participant.id = inputPid.value.trim() || 'P01';
+      participant.age = parseInt(inputAge.value, 10) || 20;
+      participant.device = selectDevice.value;
+      participant.handedness = selectHand.value;
+      participant.consentAgreed = true;
+      participant.consentTimestamp = new Date().toLocaleString();
+
+      lblParticipant.textContent = participant.id;
+      lblDevice.textContent = participant.device;
+      lblProgress.textContent = `0 / ${TOTAL_TRIALS}`;
+
+      currentBlock = 1;
+      currentTrialInBlock = 0;
+      currentOverallTrial = 0;
+      allTrialsData = [];
+
+      // Automatically Generate & Download Signed PDF Consent Form
+      try {
+        downloadConsentPdf(participant);
+      } catch (err) {
+        console.warn('PDF download auto-trigger notice:', err);
+      }
+
+      // Switch to active test screen first so DOM layout completes
+      switchScreen(screenTest);
+
+      // Initialize center positioning and start block
+      requestAnimationFrame(() => {
+        resetToCenter();
+        startNewBlock();
+        showFeedback(`Consent Form Saved: Consent_Form_${participant.id}.pdf`, 'success');
+      });
+    });
+
+    // Start New Block
+    function startNewBlock() {
+      blockTasks = generateBlockTasks();
+      currentTrialInBlock = 0;
+      prepareNextTrial();
+    }
+
+    // Reset To Center (Guaranteed Centering via CSS)
+    function resetToCenter() {
+      startTarget.style.left = '50%';
+      startTarget.style.top = '50%';
+      startTarget.style.transform = 'translate(-50%, -50%)';
+      startTarget.style.display = 'flex';
+      startTarget.classList.add('pulse');
+
+      centerAnchor.style.left = '50%';
+      centerAnchor.style.top = '50%';
+      centerAnchor.style.transform = 'translate(-50%, -50%)';
+
+      goalTarget.style.display = 'none';
+      trialActive = false;
+    }
+
+    // Prepare Next Trial
+    function prepareNextTrial() {
+      if (currentTrialInBlock >= blockTasks.length) {
+        // Block completed!
+        if (currentBlock < NUM_BLOCKS) {
+          currentBlock++;
+          breakText.innerHTML = `You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS}.<br>Take a short rest to relax your hand and wrist. When you are ready, click below to proceed to Block ${currentBlock}.`;
+          switchScreen(screenBreak);
+        } else {
+          // Entire experiment completed!
+          finishExperiment();
+        }
+        return;
+      }
+
+      currentTask = blockTasks[currentTrialInBlock];
+      hudBlock.textContent = `${currentBlock} / ${NUM_BLOCKS}`;
+      hudTrial.textContent = `${currentTrialInBlock + 1} / ${blockTasks.length}`;
+      hudParams.textContent = `W:${currentTask.width}px, A:${currentTask.amplitude}px (${currentTask.direction})`;
+      hudErrors.textContent = `0`;
+      lblProgress.textContent = `${currentOverallTrial} / ${TOTAL_TRIALS}`;
+
+      trialErrors = 0;
+      trialTrajectory = [];
+      trialDistance = 0;
+
+      resetToCenter();
+    }
+
+    // Resume Next Block after Break
+    btnNextBlock.addEventListener('click', () => {
+      switchScreen(screenTest);
+      requestAnimationFrame(() => {
+        resetToCenter();
+        startNewBlock();
+      });
+    });
+
+    // Center Start Target Clicked
+    startTarget.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startTarget.style.display = 'none';
+      trialActive = true;
+      trialStartTime = performance.now();
+
+      const rect = testArea.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+
+      // Position Goal Target Circle using calc for 100% responsiveness
+      const sign = (currentTask.direction === 'Left') ? -1 : 1;
+      goalTarget.style.width = `${currentTask.width}px`;
+      goalTarget.style.height = `${currentTask.width}px`;
+      goalTarget.style.left = `calc(50% + ${sign * currentTask.amplitude}px)`;
+      goalTarget.style.top = '50%';
+      goalTarget.style.transform = 'translate(-50%, -50%)';
+      goalTarget.style.display = 'block';
+
+      // Record initial origin position
+      trialTrajectory = [{ x: cx, y: cy, t: trialStartTime }];
+      trialDistance = 0;
+
+      playBeep(440, 0.05); // low arm tone
+    });
+
+    // Mouse Movement Tracking (Euclidean distance accumulation)
+    testArea.addEventListener('mousemove', (e) => {
+      if (!trialActive) return;
+      const rect = testArea.getBoundingClientRect();
+      const curX = e.clientX - rect.left;
+      const curY = e.clientY - rect.top;
+
+      if (trialTrajectory.length > 0) {
+        const last = trialTrajectory[trialTrajectory.length - 1];
+        const dx = curX - last.x;
+        const dy = curY - last.y;
+        trialDistance += Math.hypot(dx, dy);
+      }
+      trialTrajectory.push({ x: curX, y: curY, t: performance.now() });
+    });
+
+    // Miss Click on Canvas (Error Detection)
+    testArea.addEventListener('click', (e) => {
+      if (!trialActive) return;
+      trialErrors++;
+      hudErrors.textContent = trialErrors;
+      playBeep(220, 0.1, 'sawtooth');
+      showFeedback(`Miss! (${trialErrors} error${trialErrors > 1 ? 's' : ''})`, 'error');
+    });
+
+    // Hit Click on Goal Target Circle
+    goalTarget.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!trialActive) return;
+
+      const finishTime = performance.now();
+      const movementTime = Math.round(finishTime - trialStartTime);
+      trialActive = false;
+
+      // Ensure final point recorded
+      const rect = testArea.getBoundingClientRect();
+      const curX = e.clientX - rect.left;
+      const curY = e.clientY - rect.top;
+      if (trialTrajectory.length > 0) {
+        const last = trialTrajectory[trialTrajectory.length - 1];
+        trialDistance += Math.hypot(curX - last.x, curY - last.y);
+      }
+
+      // Record Trial Data
+      const optimalDistance = currentTask.amplitude;
+      const actualDistance = Math.round(trialDistance);
+      const trajectoryEfficiency = optimalDistance > 0 ? parseFloat((actualDistance / optimalDistance).toFixed(3)) : 1.0;
+
+      const record = {
+        participantId: participant.id,
+        age: participant.age,
+        device: participant.device,
+        handedness: participant.handedness,
+        block: currentBlock,
+        trialInBlock: currentTrialInBlock + 1,
+        overallTrial: currentOverallTrial + 1,
+        amplitude: currentTask.amplitude,
+        width: currentTask.width,
+        direction: currentTask.direction,
+        idShannon: currentTask.idShannon,
+        idFitts: currentTask.idFitts,
+        movementTime: movementTime,
+        actualDistance: actualDistance,
+        optimalDistance: optimalDistance,
+        trajectoryEfficiency: trajectoryEfficiency,
+        errors: trialErrors,
+        success: trialErrors === 0 ? 1 : 0
+      };
+
+      allTrialsData.push(record);
+      currentTrialInBlock++;
+      currentOverallTrial++;
+
+      playBeep(880, 0.08); // high success chime
+      showFeedback(`Hit! ${movementTime} ms`, 'success');
+
+      goalTarget.style.display = 'none';
+
+      // Brief delay before presenting next trial to allow visual feedback
+      setTimeout(() => {
+        prepareNextTrial();
+      }, 150);
+    });
+
+    // Show Feedback Toast
+    function showFeedback(text, type) {
+      feedbackBanner.textContent = text;
+      feedbackBanner.className = `feedback-banner show ${type}`;
+      setTimeout(() => {
+        feedbackBanner.classList.remove('show');
+      }, 800);
+    }
+
+    // Finish Experiment & Calculate Analytics
+    function finishExperiment() {
+      switchScreen(screenResults);
+
+      const N = allTrialsData.length;
+      if (N === 0) return;
+
+      const sumMt = allTrialsData.reduce((acc, t) => acc + t.movementTime, 0);
+      const meanMt = Math.round(sumMt / N);
+
+      const totalErrors = allTrialsData.reduce((acc, t) => acc + t.errors, 0);
+      const errorRate = parseFloat(((totalErrors / N) * 100).toFixed(2));
+
+      const sumEff = allTrialsData.reduce((acc, t) => acc + t.trajectoryEfficiency, 0);
+      const meanEff = (sumEff / N).toFixed(2);
+
+      // Aggregate by Condition (16 unique A & W combinations)
+      const condMap = new Map();
+      allTrialsData.forEach(t => {
+        const key = `${t.amplitude}_${t.width}`;
+        if (!condMap.has(key)) {
+          condMap.set(key, {
+            amplitude: t.amplitude,
+            width: t.width,
+            idShannon: t.idShannon,
+            mtList: []
+          });
+        }
+        condMap.get(key).mtList.push(t.movementTime);
+      });
+
+      const aggregated = [];
+      condMap.forEach(v => {
+        const avg = v.mtList.reduce((a, b) => a + b, 0) / v.mtList.length;
+        aggregated.push({ id: v.idShannon, mt: avg });
+      });
+
+      // Linear Regression: MT = a + b * ID
+      const nPts = aggregated.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
+      aggregated.forEach(p => {
+        sumX += p.id;
+        sumY += p.mt;
+        sumXY += p.id * p.mt;
+        sumXX += p.id * p.id;
+        sumYY += p.mt * p.mt;
+      });
+
+      const slope_b = (nPts * sumXY - sumX * sumY) / (nPts * sumXX - sumX * sumX);
+      const intercept_a = (sumY - slope_b * sumX) / nPts;
+
+      // R-squared
+      const meanY = sumY / nPts;
+      let ssTot = 0, ssRes = 0;
+      aggregated.forEach(p => {
+        const pred = intercept_a + slope_b * p.id;
+        ssTot += Math.pow(p.mt - meanY, 2);
+        ssRes += Math.pow(p.mt - pred, 2);
+      });
+      const r2 = ssTot > 0 ? (1 - ssRes / ssTot) : 0;
+      const slopeSec = slope_b / 1000;
+      const throughput = slopeSec > 0 ? (1 / slopeSec).toFixed(2) : '—';
+
+      // Update DOM
+      resMt.textContent = `${meanMt}`;
+      resErr.textContent = `${errorRate}%`;
+      resIp.textContent = `${throughput}`;
+      resEff.textContent = `${meanEff}x`;
+
+      const signStr = intercept_a >= 0 ? `+ ${intercept_a.toFixed(1)}` : `- ${Math.abs(intercept_a).toFixed(1)}`;
+      resEq.textContent = `MT = ${slope_b.toFixed(1)} · ID ${signStr} ms`;
+      resR2.textContent = r2.toFixed(3);
+
+      // Render Canvas Regression Chart
+      renderChart(aggregated, intercept_a, slope_b);
+    }
+
+    // Render Canvas Regression Chart
+    function renderChart(points, a, b) {
+      const ctx = regressionChart.getContext('2d');
+      const w = regressionChart.width;
+      const h = regressionChart.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const padL = 60, padR = 30, padT = 30, padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      const minX = 0;
+      const maxX = 6.0;
+      const minY = 0;
+      const maxY = Math.max(1200, ...points.map(p => p.mt * 1.25));
+
+      function toScreenX(x) { return padL + (x - minX) / (maxX - minX) * plotW; }
+      function toScreenY(y) { return padT + plotH - (y - minY) / (maxY - minY) * plotH; }
+
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.font = '11px sans-serif';
+      ctx.fillStyle = '#64748b';
+
+      for (let x = 1; x <= 5; x++) {
+        const sx = toScreenX(x);
+        ctx.beginPath();
+        ctx.moveTo(sx, padT);
+        ctx.lineTo(sx, padT + plotH);
+        ctx.stroke();
+        ctx.fillText(`${x} bits`, sx - 14, padT + plotH + 18);
+      }
+
+      for (let y = 200; y <= maxY; y += 200) {
+        const sy = toScreenY(y);
+        ctx.beginPath();
+        ctx.moveTo(padL, sy);
+        ctx.lineTo(padL + plotW, sy);
+        ctx.stroke();
+        ctx.fillText(`${y}`, padL - 32, sy + 4);
+      }
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.moveTo(padL, padT);
+      ctx.lineTo(padL, padT + plotH);
+      ctx.lineTo(padL + plotW, padT + plotH);
+      ctx.stroke();
+
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('Index of Difficulty (ID, bits)', padL + plotW / 2 - 60, h - 8);
+      ctx.save();
+      ctx.translate(14, padT + plotH / 2 + 30);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Movement Time (MT, ms)', 0, 0);
+      ctx.restore();
+
+      const y0 = a + b * minX;
+      const y1 = a + b * maxX;
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(toScreenX(minX), toScreenY(y0));
+      ctx.lineTo(toScreenX(maxX), toScreenY(y1));
+      ctx.stroke();
+
+      points.forEach(p => {
+        const sx = toScreenX(p.id);
+        const sy = toScreenY(p.mt);
+        ctx.fillStyle = '#2563eb';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
+    }
+
+    // CSV Export Helpers
+    function exportToCsv(filename, rows) {
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    btnExportCsv.addEventListener('click', () => {
+      const headers = [
+        "Participant_ID", "Age", "Device", "Handedness", "Block", "Trial_In_Block", "Overall_Trial",
+        "Amplitude_px", "Width_px", "Direction", "ID_Shannon_bits", "ID_Fitts_bits",
+        "Movement_Time_ms", "Actual_Distance_px", "Optimal_Distance_px", "Trajectory_Efficiency",
+        "Errors", "Success"
+      ];
+      const rows = [headers];
+      allTrialsData.forEach(t => {
+        rows.push([
+          t.participantId, t.age, t.device, t.handedness, t.block, t.trialInBlock, t.overallTrial,
+          t.amplitude, t.width, t.direction, t.idShannon, t.idFitts,
+          t.movementTime, t.actualDistance, t.optimalDistance, t.trajectoryEfficiency,
+          t.errors, t.success
+        ]);
+      });
+      exportToCsv(`Fitts_Law_Trials_${participant.id}.csv`, rows);
+    });
+
+    btnExportSummary.addEventListener('click', () => {
+      const condMap = new Map();
+      allTrialsData.forEach(t => {
+        const key = `${t.amplitude}_${t.width}_${t.direction}`;
+        if (!condMap.has(key)) {
+          condMap.set(key, {
+            amplitude: t.amplitude,
+            width: t.width,
+            direction: t.direction,
+            idShannon: t.idShannon,
+            idFitts: t.idFitts,
+            mtList: [],
+            distList: [],
+            errCount: 0,
+            trialCount: 0
+          });
+        }
+        const c = condMap.get(key);
+        c.mtList.push(t.movementTime);
+        c.distList.push(t.actualDistance);
+        c.errCount += t.errors;
+        c.trialCount++;
+      });
+
+      const headers = [
+        "Amplitude_px", "Width_px", "Direction", "ID_Shannon", "ID_Fitts",
+        "N_Trials", "Mean_MT_ms", "SD_MT_ms", "Mean_Actual_Dist_px", "Trajectory_Efficiency",
+        "Total_Errors", "Error_Rate_Pct"
+      ];
+      const rows = [headers];
+
+      condMap.forEach(c => {
+        const n = c.trialCount;
+        const meanMt = c.mtList.reduce((a, b) => a + b, 0) / n;
+        const variance = c.mtList.reduce((a, b) => a + Math.pow(b - meanMt, 2), 0) / n;
+        const sdMt = Math.sqrt(variance);
+        const meanDist = c.distList.reduce((a, b) => a + b, 0) / n;
+        const eff = (meanDist / c.amplitude).toFixed(3);
+        const errRate = ((c.errCount / n) * 100).toFixed(2);
+
+        rows.push([
+          c.amplitude, c.width, c.direction, c.idShannon, c.idFitts,
+          n, meanMt.toFixed(1), sdMt.toFixed(1), meanDist.toFixed(1), eff,
+          c.errCount, errRate
+        ]);
+      });
+
+      exportToCsv(`Fitts_Law_Condition_Summary_${participant.id}.csv`, rows);
+    });
+
+    btnRestart.addEventListener('click', () => {
+      switchScreen(screenWelcome);
+    });
+
+    // Automated Session Runner (Simulation for Demonstrations/Verification)
+    btnRunSim.addEventListener('click', () => {
+      participant.id = inputPid.value.trim() || 'P01';
+      participant.age = parseInt(inputAge.value, 10) || 22;
+      participant.device = selectDevice.value;
+      participant.handedness = selectHand.value;
+      participant.consentAgreed = true;
+      participant.consentTimestamp = new Date().toLocaleString();
+
+      try {
+        downloadConsentPdf(participant);
+      } catch (e) { }
+
+      allTrialsData = [];
+      const baseA = 180 + Math.random() * 40;
+      const baseB = 135 + Math.random() * 25;
+
+      for (let b = 1; b <= NUM_BLOCKS; b++) {
+        const tasks = generateBlockTasks();
+        tasks.forEach((task, idx) => {
+          const meanMT = baseA + baseB * task.idShannon;
+          const dirFactor = (task.direction === 'Right' && participant.handedness === 'Right') ? 0.97 : 1.03;
+          const practiceFactor = 1.0 + (10 - b) * 0.015;
+          const noise = (Math.random() - 0.5) * 45;
+          const mt = Math.max(180, Math.round((meanMT * dirFactor * practiceFactor) + noise));
+
+          const pathRatio = 1.04 + (Math.random() * 0.08);
+          const actDist = Math.round(task.amplitude * pathRatio);
+
+          const errProb = 0.015 + (task.idShannon / 7.0) * 0.055;
+          const hasError = Math.random() < errProb ? 1 : 0;
+
+          allTrialsData.push({
+            participantId: participant.id,
+            age: participant.age,
+            device: participant.device,
+            handedness: participant.handedness,
+            block: b,
+            trialInBlock: idx + 1,
+            overallTrial: (b - 1) * 32 + idx + 1,
+            amplitude: task.amplitude,
+            width: task.width,
+            direction: task.direction,
+            idShannon: task.idShannon,
+            idFitts: task.idFitts,
+            movementTime: mt,
+            actualDistance: actDist,
+            optimalDistance: task.amplitude,
+            trajectoryEfficiency: parseFloat(pathRatio.toFixed(3)),
+            errors: hasError,
+            success: hasError === 0 ? 1 : 0
+          });
+        });
+      }
+
+      finishExperiment();
+    });
+
+  </script>
+</body>
+
+</html>

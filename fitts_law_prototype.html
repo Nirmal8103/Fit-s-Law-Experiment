@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitts' Law Prototype</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background: #f5f6fa; color: #202635; }
+  #area { position: relative; width: 760px; height: 420px; margin: 16px auto; background: white; border: 2px solid #46546c; overflow: hidden; cursor: crosshair; }
+  .circle { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; }
+  #start { width: 22px; height: 22px; background: #2563eb; left: 50%; top: 50%; }
+  #target { background: #169b62; display: none; }
+  button { padding: 10px 16px; margin: 6px; cursor: pointer; }
+  #status { font-weight: bold; min-height: 24px; }
+  #details { color: #485569; }
+</style>
+</head>
+<body>
+<h1>Fitts' Law Experiment</h1>
+<p>Click <b>Start Experiment</b>, then click the blue center dot to reveal each green target. Click the green target as quickly as possible.</p>
+<button id="begin">Start Experiment</button>
+<button id="download" disabled>Download CSV</button>
+<p id="status">Ready</p>
+<div id="area">
+  <div id="start" class="circle" title="Click here to begin a trial"></div>
+  <div id="target" class="circle"></div>
+</div>
+<p id="details">A missed click inside the white testing area counts as an error.</p>
+<script>
+const diameters = [24, 40, 64, 96];
+const distances = [120, 180, 240, 300];
+const directions = [-1, 1];
+const area = document.getElementById('area');
+const start = document.getElementById('start');
+const target = document.getElementById('target');
+const status = document.getElementById('status');
+const details = document.getElementById('details');
+const begin = document.getElementById('begin');
+const download = document.getElementById('download');
+let trials = [], results = [], index = 0, active = false, lastPoint = null;
+let startTime = 0, traveled = 0, errors = 0;
+const center = {x: 380, y: 210};
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function localPoint(e) {
+  const r = area.getBoundingClientRect();
+  return {x: e.clientX - r.left - area.clientLeft, y: e.clientY - r.top - area.clientTop};
+}
+function resetExperiment() {
+  trials = [];
+  for (const width of diameters)
+    for (const distance of distances)
+      for (const direction of directions)
+        trials.push({width, distance, direction});
+  shuffle(trials);
+  results = []; index = 0; active = false;
+  target.style.display = 'none'; start.style.display = 'block';
+  download.disabled = true;
+  status.textContent = 'Trial 1 of 32 — click the blue dot';
+  details.textContent = 'Complete all 32 randomized trials.';
+}
+begin.addEventListener('click', resetExperiment);
+start.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (index >= trials.length || !trials.length || active) return;
+  const t = trials[index];
+  target.style.width = t.width + 'px';
+  target.style.height = t.width + 'px';
+  target.style.left = (center.x + t.direction * t.distance) + 'px';
+  target.style.top = center.y + 'px';
+  target.style.display = 'block';
+  start.style.display = 'none';
+  errors = 0; traveled = 0; lastPoint = center;
+  active = true;
+  startTime = performance.now();
+  status.textContent = `Trial ${index + 1} of ${trials.length} — click the green circle`;
+});
+area.addEventListener('pointermove', (e) => {
+  if (!active) return;
+  const p = localPoint(e);
+  if (lastPoint) traveled += Math.hypot(p.x - lastPoint.x, p.y - lastPoint.y);
+  lastPoint = p;
+});
+area.addEventListener('click', (e) => {
+  if (!active) return;
+  if (e.target !== target) errors++;
+});
+target.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!active) return;
+  const p = localPoint(e);
+  if (lastPoint) traveled += Math.hypot(p.x - lastPoint.x, p.y - lastPoint.y);
+  const elapsed = performance.now() - startTime;
+  const t = trials[index];
+  results.push({trial: index + 1, diameter_px: t.width, distance_px: t.distance,
+    direction: t.direction === -1 ? 'Left' : 'Right',
+    index_of_difficulty: Math.log2(1 + t.distance / t.width).toFixed(4),
+    time_ms: elapsed.toFixed(2), path_px: traveled.toFixed(2), errors});
+  active = false;
+  target.style.display = 'none';
+  start.style.display = 'block';
+  index++;
+  details.textContent = `Previous trial: ${elapsed.toFixed(0)} ms | Path: ${traveled.toFixed(0)} px | Errors: ${errors}`;
+  if (index === trials.length) {
+    status.textContent = 'Finished! All 32 trials completed.';
+    download.disabled = false;
+  } else {
+    status.textContent = `Trial ${index + 1} of ${trials.length} — click the blue dot`;
+  }
+});
+download.addEventListener('click', () => {
+  if (!results.length) return;
+  const cols = Object.keys(results[0]);
+  const csv = [cols.join(','), ...results.map(row => cols.map(k => row[k]).join(','))].join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'fitts_law_results.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+</script>
+</body>
+</html>

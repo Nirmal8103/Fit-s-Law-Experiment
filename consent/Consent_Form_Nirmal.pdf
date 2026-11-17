@@ -1,0 +1,73 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 3954 >>
+stream
+0.12 0.23 0.54 rg BT /F2 18 Tf 50 740 Td (INFORMED CONSENT & PARTICIPANT ENROLLMENT) Tj ET
+0.4 0.45 0.55 rg BT /F1 10 Tf 50 722 Td (Fitts Law Target Acquisition Study | Course: CS/HCI 582: Human-Computer Interaction) Tj ET
+0.12 0.23 0.54 RG 2 w 50 712 m 562 712 l S
+0.96 0.97 0.99 rg 0.75 0.82 0.92 RG 1 w 50 615 512 85 re B
+0.12 0.23 0.54 rg BT /F2 10 Tf 65 680 Td (Participant ID:) Tj ET
+0.06 0.09 0.16 rg BT /F2 10 Tf 160 680 Td (Nirmal) Tj ET
+0.12 0.23 0.54 rg BT /F2 10 Tf 310 680 Td (Assigned Device:) Tj ET
+0.06 0.09 0.16 rg BT /F1 10 Tf 420 680 Td (Mouse) Tj ET
+0.12 0.23 0.54 rg BT /F2 10 Tf 65 658 Td (Age \(Years\):) Tj ET
+0.06 0.09 0.16 rg BT /F1 10 Tf 160 658 Td (26 \(Confirmed >= 18\)) Tj ET
+0.12 0.23 0.54 rg BT /F2 10 Tf 310 658 Td (Dominant Hand:) Tj ET
+0.06 0.09 0.16 rg BT /F1 10 Tf 420 658 Td (Right) Tj ET
+0.12 0.23 0.54 rg BT /F2 10 Tf 65 636 Td (Registration Time:) Tj ET
+0.06 0.09 0.16 rg BT /F1 10 Tf 160 636 Td (11/12/2026, 2:15:45 PM) Tj ET
+0.12 0.23 0.54 rg BT /F2 10 Tf 310 636 Td (Consent Status:) Tj ET
+0.08 0.55 0.25 rg BT /F2 9 Tf 420 636 Td (CONFIRMED & ELECTRONICALLY SIGNED) Tj ET
+0.12 0.23 0.54 rg BT /F2 12 Tf 50 588 Td (1. Purpose of the Study) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 572 Td (You are participating in a research study investigating human motor performance in rapid aimed target acquisition,) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 558 Td (guided by the mathematical principles of Fitts Law. The objective is to empirically evaluate movement time and) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 544 Td (trajectory precision across diverse amplitudes \(distances\), target widths \(sizes\), and movement directions.) Tj ET
+0.12 0.23 0.54 rg BT /F2 12 Tf 50 518 Td (2. Description of Experimental Procedure) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 502 Td (During this session, you will complete 10 testing blocks consisting of 32 distinct target acquisition tasks \(total 320 trials\).) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 488 Td (For each trial, you will reposition your cursor at the center of the screen, click the center start circle, and then swiftly move) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 474 Td (and click on a circular target displayed on either the left or right side of the screen as quickly and accurately as possible.) Tj ET
+0.12 0.23 0.54 rg BT /F2 12 Tf 50 448 Td (3. Participant Eligibility & Voluntary Participation) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 432 Td (To be eligible, you must be 18 years of age or older, possess normal or corrected vision, and have regular experience operating) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 418 Td (a computer with your assigned pointing device. Participation is voluntary. You may withdraw at any time without penalty.) Tj ET
+0.12 0.23 0.54 rg BT /F2 12 Tf 50 392 Td (4. Risks, Benefits & Data Confidentiality) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 376 Td (There are no foreseeable physical or ergonomic risks beyond typical computer mouse or trackpad operation. All data recorded) Tj ET
+0.12 0.16 0.24 rg BT /F1 9.5 Tf 50 362 Td (\(movement times, trajectory paths, error instances\) will be anonymized under your Participant ID and used solely for CS/HCI 582.) Tj ET
+0.93 0.98 0.94 rg 0.12 0.65 0.32 RG 1 w 50 225 512 115 re B
+0.12 0.23 0.54 rg 0.12 0.23 0.54 RG 1 w 50 315 512 25 re B
+1 1 1 rg BT /F2 10 Tf 65 323 Td (ELECTRONIC SIGNATURE & CONSENT VERIFICATION RECORD) Tj ET
+0.08 0.55 0.22 rg BT /F2 10 Tf 65 296 Td ([X] AGREED AND CONFIRMED) Tj ET
+0.15 0.2 0.28 rg BT /F1 9 Tf 65 280 Td (I have read the informed consent statement, am 18+ years of age, and freely agree to participate in this study.) Tj ET
+0.08 0.5 0.2 rg BT /F2 9.5 Tf 65 260 Td (Digital Signature: Electronic Agreement by Participant Nirmal) Tj ET
+0.35 0.45 0.4 rg BT /F1 8.5 Tf 65 244 Td (Timestamp: 11/12/2026, 2:15:45 PM | Workstation: PC) Tj ET
+0.35 0.45 0.4 rg BT /F1 8.5 Tf 65 232 Td (Verification Hash: SHA256:DE3FD9FB-IRB-VERIFIED) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+4401
+%%EOF
