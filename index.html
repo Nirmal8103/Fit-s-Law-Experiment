@@ -129,7 +129,30 @@
     .card-subtitle {
       color: var(--text-muted);
       font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    /* Resume Active Session Banner */
+    .resume-card {
+      background: #eff6ff;
+      border: 1.5px solid #3b82f6;
+      border-radius: 10px;
+      padding: 16px;
       margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .resume-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .resume-card p {
+      font-size: 0.85rem;
+      color: #1e3a8a;
+      line-height: 1.4;
     }
 
     .consent-box {
@@ -141,7 +164,7 @@
       line-height: 1.5;
       color: #334155;
       margin-bottom: 20px;
-      max-height: 200px;
+      max-height: 180px;
       overflow-y: auto;
       user-select: text;
     }
@@ -254,9 +277,9 @@
     /* Center Start Target (Pure CSS Absolute Center) */
     .start-circle {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
       width: 48px;
       height: 48px;
       border-radius: 50%;
@@ -276,7 +299,7 @@
     }
 
     .start-circle:hover {
-      transform: translate(-50%, -50%) scale(1.1);
+      transform: translate(-50%, -50%) scale(1.1) !important;
       background: #047857;
     }
 
@@ -301,9 +324,9 @@
     /* Center Anchor Crosshair */
     .center-anchor {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
       width: 16px;
       height: 16px;
       pointer-events: none;
@@ -468,6 +491,38 @@
       position: relative;
     }
 
+    /* Server Sync Status Banner */
+    .sync-banner {
+      margin-top: 16px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .sync-banner.loading {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+    }
+
+    .sync-banner.success {
+      background: #dcfce7;
+      border: 1.5px solid #86efac;
+      color: #15803d;
+      font-weight: 600;
+    }
+
+    .sync-banner.notice {
+      background: #fefce8;
+      border: 1px solid #fde047;
+      color: #854d0e;
+    }
+
     .export-actions {
       display: flex;
       flex-wrap: wrap;
@@ -514,8 +569,8 @@
   <!-- Top Header -->
   <header>
     <div class="brand">
-      <span>Fitts' Law Experiment</span>
-      <span class="badge">Team 5</span>
+      <span>🎯 Fitts' Law Experiment</span>
+      <span class="badge">Repeated Measures</span>
     </div>
     <div class="header-metrics">
       <div>Participant: <strong id="lbl-participant">—</strong></div>
@@ -533,6 +588,21 @@
         <h1>Fitts' Law Experiment</h1>
         <div class="card-subtitle">Investigation of Target Acquisition Time as a Function of Distance and Size</div>
 
+        <!-- Resume Active Session Banner (Shown if progress exists in localStorage) -->
+        <div id="resume-banner" class="resume-card" style="display: none;">
+          <div class="resume-header">
+            <span>⏸️ <strong>Active Session Found</strong></span>
+            <span id="resume-details" class="badge">Block 1 · Trial 1</span>
+          </div>
+          <p id="resume-text">An in-progress experimental session was found on this device.</p>
+          <div style="display: flex; gap: 10px; margin-top: 12px;">
+            <button id="btn-resume-session" class="btn" style="padding: 8px 16px; font-size: 0.85rem; width: auto;">▶️
+              Resume Session</button>
+            <button id="btn-discard-session" class="btn btn-secondary"
+              style="padding: 8px 16px; font-size: 0.85rem; width: auto;">Start New</button>
+          </div>
+        </div>
+
         <div class="consent-box">
           <strong>Electronic Informed Consent Statement:</strong><br><br>
           You are invited to participate in a human-computer interaction research experiment measuring pointing and
@@ -546,8 +616,8 @@
           <strong>Voluntary Participation:</strong> Your participation is voluntary. You may withdraw at any time. By
           checking the box below and clicking "I Agree and Begin", you confirm that you are at least 18 years old,
           understand the experiment instructions, and freely consent to participate.<br><br>
-          <em>Note: Clicking "I Agree" will automatically generate and download your signed official Informed Consent
-            Form PDF (saved to the project consent folder).</em>
+          <em>Note: Clicking "I Agree" will automatically save your signed Informed Consent Form PDF and register your
+            participant ID.</em>
         </div>
 
         <div class="form-grid">
@@ -584,7 +654,7 @@
 
         <div class="sim-bar">
           <span>Experimenter Controls:</span>
-          <button id="btn-run-sim" class="btn-xs">Run Simulated Session (Auto)</button>
+          <button id="btn-run-sim" class="btn-xs">⚡ Run Simulated Session (Auto)</button>
         </div>
       </div>
     </div>
@@ -611,8 +681,8 @@
     <div id="screen-break" class="view-screen">
       <div class="break-card">
         <h2>🎉 Block Completed!</h2>
-        <p id="break-text">You have completed Block 1 of 10.<br>Take a short rest to relax your hand and wrist. When you
-          are ready, click below to proceed to the next block.</p>
+        <p id="break-text">You have completed Block 1 of 10.<br>Take a short rest to relax your hand and wrist. Your
+          progress is saved automatically. When you are ready, click below to proceed to the next block.</p>
         <button id="btn-next-block" class="btn">Resume Next Block</button>
       </div>
     </div>
@@ -620,7 +690,7 @@
     <!-- SCREEN 4: Results & Completion Screen -->
     <div id="screen-results" class="view-screen">
       <div class="card" style="max-width: 780px;">
-        <h1>Experiment Completed!</h1>
+        <h1>🏆 Experiment Completed!</h1>
         <div class="card-subtitle">All 10 blocks (320 trials) have been successfully recorded.</div>
 
         <div class="results-grid">
@@ -649,10 +719,16 @@
 
         <canvas id="regression-chart" class="chart-container" width="716" height="220"></canvas>
 
+        <!-- Automated Server Sync Feedback Banner -->
+        <div id="sync-status" class="sync-banner loading">
+          <span id="sync-spinner">⏳</span>
+          <span id="sync-text">Checking server connectivity...</span>
+        </div>
+
         <div class="export-actions">
-          <button id="btn-export-csv" class="btn">Download Raw Trials CSV</button>
-          <button id="btn-export-summary" class="btn btn-secondary">Download Summary CSV</button>
-          <button id="btn-download-consent" class="btn btn-secondary">Download Consent Form PDF</button>
+          <button id="btn-export-csv" class="btn">📥 Download Raw Trials CSV</button>
+          <button id="btn-export-summary" class="btn btn-secondary">📊 Download Summary CSV</button>
+          <button id="btn-download-consent" class="btn btn-secondary">📄 Download Consent Form PDF</button>
           <button id="btn-restart" class="btn btn-secondary" style="max-width: 120px;">Restart</button>
         </div>
       </div>
@@ -665,12 +741,21 @@
        FITTS' LAW EXPERIMENTAL TEST SUITE JAVASCRIPT
        ========================================================================== */
 
+    // =========================================================================
+    // GOOGLE APPS SCRIPT WEBHOOK CONFIGURATION (Option B)
+    // 1. Follow the steps in GOOGLE_SHEETS_SETUP.md to deploy Code.gs
+    // 2. Paste your Google Apps Script Web App URL below:
+    // =========================================================================
+    const GOOGLE_SCRIPT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyfkjmlhL7u6uW4t-BFl76Cf5xJxc_PECtIpC2SI4X6BZga0_XvXScihbZdDhigKfeq/exec";
+
     // Experimental Configuration (4 Distances, 4 Widths, 2 Directions = 32 distinct tasks)
     const AMPLITUDES = [120, 240, 360, 480]; // px from center
     const WIDTHS = [16, 32, 64, 96];        // circle diameter in px
     const DIRECTIONS = ['Left', 'Right'];
     const NUM_BLOCKS = 10;
-    const TOTAL_TRIALS = NUM_BLOCKS * (AMPLITUDES.length * WIDTHS.length * DIRECTIONS.length); // 320
+    const TRIALS_PER_BLOCK = AMPLITUDES.length * WIDTHS.length * DIRECTIONS.length; // 32
+    const TOTAL_TRIALS = NUM_BLOCKS * TRIALS_PER_BLOCK; // 320
+    const STORAGE_KEY = 'fitts_law_session_v2';
 
     // Participant State
     let participant = {
@@ -713,9 +798,7 @@
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {
-        // Audio optional / suppressed if restricted
-      }
+      } catch (e) { }
     }
 
     // DOM Elements
@@ -731,6 +814,12 @@
     const chkConsent = document.getElementById('chk-consent');
     const btnStart = document.getElementById('btn-start');
     const btnRunSim = document.getElementById('btn-run-sim');
+
+    const resumeBanner = document.getElementById('resume-banner');
+    const resumeDetails = document.getElementById('resume-details');
+    const resumeText = document.getElementById('resume-text');
+    const btnResumeSession = document.getElementById('btn-resume-session');
+    const btnDiscardSession = document.getElementById('btn-discard-session');
 
     const lblParticipant = document.getElementById('lbl-participant');
     const lblDevice = document.getElementById('lbl-device');
@@ -758,10 +847,91 @@
     const resR2 = document.getElementById('res-r2');
     const regressionChart = document.getElementById('regression-chart');
 
+    const syncStatus = document.getElementById('sync-status');
+    const syncSpinner = document.getElementById('sync-spinner');
+    const syncText = document.getElementById('sync-text');
+
     const btnExportCsv = document.getElementById('btn-export-csv');
     const btnExportSummary = document.getElementById('btn-export-summary');
     const btnDownloadConsent = document.getElementById('btn-download-consent');
     const btnRestart = document.getElementById('btn-restart');
+
+    /* ==========================================================================
+       PROGRESS PERSISTENCE (localStorage) — SURVIVES REFRESHES & BREAKS
+       ========================================================================== */
+    function saveSessionProgress() {
+      try {
+        const session = {
+          participant,
+          currentBlock,
+          currentTrialInBlock,
+          currentOverallTrial,
+          allTrialsData,
+          blockTasks,
+          savedAt: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+      } catch (err) {
+        console.warn('localStorage save warning:', err);
+      }
+    }
+
+    function clearSessionProgress() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    function checkResumeSession() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const session = JSON.parse(raw);
+        if (session && session.participant && session.currentOverallTrial > 0 && session.currentOverallTrial < TOTAL_TRIALS) {
+          resumeDetails.textContent = `Block ${session.currentBlock}/${NUM_BLOCKS} · Trial ${session.currentTrialInBlock + 1}/${TRIALS_PER_BLOCK}`;
+          resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You have completed ${session.currentOverallTrial} of ${TOTAL_TRIALS} trials.`;
+          resumeBanner.style.display = 'block';
+        }
+      } catch (e) {
+        console.error('Error checking resume session:', e);
+      }
+    }
+
+    btnResumeSession.addEventListener('click', () => {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const session = JSON.parse(raw);
+      participant = session.participant;
+      currentBlock = session.currentBlock;
+      currentTrialInBlock = session.currentTrialInBlock;
+      currentOverallTrial = session.currentOverallTrial;
+      allTrialsData = session.allTrialsData || [];
+      blockTasks = (session.blockTasks && session.blockTasks.length > 0) ? session.blockTasks : generateBlockTasks();
+
+      lblParticipant.textContent = participant.id;
+      lblDevice.textContent = participant.device;
+      lblProgress.textContent = `${currentOverallTrial} / ${TOTAL_TRIALS}`;
+
+      switchScreen(screenTest);
+      requestAnimationFrame(() => {
+        resetToCenter();
+        prepareNextTrial();
+        showFeedback(`Resumed Session for ${participant.id}`, 'success');
+      });
+    });
+
+    btnDiscardSession.addEventListener('click', () => {
+      if (confirm('Discard previously saved progress and start fresh?')) {
+        clearSessionProgress();
+        resumeBanner.style.display = 'none';
+      }
+    });
+
+    // Warn if participant attempts to refresh or close tab mid-experiment
+    window.addEventListener('beforeunload', (e) => {
+      if (currentOverallTrial > 0 && currentOverallTrial < TOTAL_TRIALS) {
+        e.preventDefault();
+        e.returnValue = 'You have an active experiment in progress. Your progress is saved in local storage, but are you sure you want to leave?';
+      }
+    });
 
     // Consent Validation
     function validateConsent() {
@@ -804,7 +974,7 @@
     }
 
     /* ==========================================================================
-       CLIENT-SIDE PDF CONSENT FORM GENERATOR (Zero External Dependencies)
+       HIGH-CONTRAST CLIENT-SIDE PDF CONSENT GENERATOR
        ========================================================================== */
     function generateConsentPdfBlob(p) {
       let content = '';
@@ -868,10 +1038,9 @@
       text('F2', 10, 65, 296, '[X] AGREED AND CONFIRMED', 0.08, 0.55, 0.22);
       text('F1', 9, 65, 280, 'I have read the informed consent statement, am 18+ years of age, and freely agree to participate in this study.', 0.15, 0.2, 0.28);
       text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by Participant ' + p.id, 0.08, 0.5, 0.2);
-      text('F1', 8.5, 65, 244, 'Timestamp: ' + (p.consentTimestamp || new Date().toLocaleString()) + ' | Workstation: PC', 0.35, 0.45, 0.4);
+      text('F1', 8.5, 65, 244, 'Timestamp: ' + (p.consentTimestamp || new Date().toLocaleString()) + ' | Workstation: HCI-Lab-Station-04', 0.35, 0.45, 0.4);
       text('F1', 8.5, 65, 232, 'Verification Hash: SHA256:' + Math.abs((p.id + p.age).split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0)).toString(16).toUpperCase() + '-IRB-VERIFIED', 0.35, 0.45, 0.4);
 
-      // PDF 1.4 Serialization
       const encoder = new TextEncoder();
       const contentBytes = encoder.encode(content);
       const streamLen = contentBytes.length;
@@ -895,8 +1064,7 @@
         'endobj',
         '6 0 obj',
         '<< /Length ' + streamLen + ' >>',
-        'stream',
-        content + 'endstream',
+        'stream\n' + content + 'endstream',
         'endobj'
       ];
 
@@ -933,6 +1101,81 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return blob;
+    }
+
+    /* ==========================================================================
+       SERVER TRANSMISSION HELPERS (Google Apps Script Webhook)
+       ========================================================================== */
+    async function sendConsentToServer(p, pdfBlob) {
+      if (!GOOGLE_SCRIPT_WEBHOOK_URL || GOOGLE_SCRIPT_WEBHOOK_URL.trim() === '') {
+        console.log('Google Script Webhook URL not configured yet. PDF saved locally.');
+        return;
+      }
+      try {
+        const reader = new FileReader();
+        reader.readAsDataURL(pdfBlob);
+        reader.onloadend = async () => {
+          const base64Data = reader.result.split(',')[1];
+          const payload = {
+            action: 'save_consent',
+            participantId: p.id,
+            fileName: `Consent_Form_${p.id}.pdf`,
+            pdfBase64: base64Data
+          };
+          await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          console.log('Consent form PDF successfully archived in Google Drive!');
+        };
+      } catch (err) {
+        console.warn('Could not upload consent to Google Drive:', err);
+      }
+    }
+
+    async function sendResultsToServer(p, trials, summaryData) {
+      if (!GOOGLE_SCRIPT_WEBHOOK_URL || GOOGLE_SCRIPT_WEBHOOK_URL.trim() === '') {
+        syncStatus.className = 'sync-banner notice';
+        syncSpinner.textContent = 'ℹ️';
+        syncText.innerHTML = `Results cached in browser. (Configure Google Webhook in <code>index.html</code> to auto-sync to Google Sheets).`;
+        return;
+      }
+
+      syncStatus.className = 'sync-banner loading';
+      syncSpinner.textContent = '⏳';
+      syncText.textContent = `Syncing all ${trials.length} trials to researcher's Google Sheet...`;
+
+      try {
+        const payload = {
+          action: 'save_results',
+          participantId: p.id,
+          submittedAt: new Date().toISOString(),
+          trials: trials,
+          summary: summaryData
+        };
+
+        const resp = await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await resp.json();
+        if (result.status === 'success') {
+          syncStatus.className = 'sync-banner success';
+          syncSpinner.textContent = '✅';
+          syncText.innerHTML = `<strong>Auto-Saved!</strong> All 320 trials have been recorded in the researcher's Google Sheet. You do not need to send any files.`;
+        } else {
+          throw new Error(result.message || 'Server error');
+        }
+      } catch (err) {
+        console.warn('Google Sheets auto-save notice:', err);
+        syncStatus.className = 'sync-banner notice';
+        syncSpinner.textContent = '⚠️';
+        syncText.innerHTML = `Automatic cloud sync could not connect. <strong>Please click "Download Raw Trials CSV" below</strong> as your backup.`;
+      }
     }
 
     btnDownloadConsent.addEventListener('click', () => {
@@ -957,12 +1200,17 @@
       currentOverallTrial = 0;
       allTrialsData = [];
 
-      // Automatically Generate & Download Signed PDF Consent Form
+      // Generate PDF & upload to Google Drive in background
       try {
+        const pdfBlob = generateConsentPdfBlob(participant);
+        sendConsentToServer(participant, pdfBlob);
         downloadConsentPdf(participant);
       } catch (err) {
-        console.warn('PDF download auto-trigger notice:', err);
+        console.warn('PDF consent notice:', err);
       }
+
+      // Save initial progress
+      saveSessionProgress();
 
       // Switch to active test screen first so DOM layout completes
       switchScreen(screenTest);
@@ -979,6 +1227,7 @@
     function startNewBlock() {
       blockTasks = generateBlockTasks();
       currentTrialInBlock = 0;
+      saveSessionProgress();
       prepareNextTrial();
     }
 
@@ -1004,7 +1253,8 @@
         // Block completed!
         if (currentBlock < NUM_BLOCKS) {
           currentBlock++;
-          breakText.innerHTML = `You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS}.<br>Take a short rest to relax your hand and wrist. When you are ready, click below to proceed to Block ${currentBlock}.`;
+          saveSessionProgress();
+          breakText.innerHTML = `You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS}.<br>Take a short rest to relax your hand and wrist. Your progress is saved automatically. When you are ready, click below to proceed to Block ${currentBlock}.`;
           switchScreen(screenBreak);
         } else {
           // Entire experiment completed!
@@ -1136,6 +1386,9 @@
       currentTrialInBlock++;
       currentOverallTrial++;
 
+      // Save progress to local storage continuously
+      saveSessionProgress();
+
       playBeep(880, 0.08); // high success chime
       showFeedback(`Hit! ${movementTime} ms`, 'success');
 
@@ -1158,6 +1411,9 @@
 
     // Finish Experiment & Calculate Analytics
     function finishExperiment() {
+      // Clear in-progress session since experiment is complete
+      clearSessionProgress();
+
       switchScreen(screenResults);
 
       const N = allTrialsData.length;
@@ -1171,6 +1427,7 @@
 
       const sumEff = allTrialsData.reduce((acc, t) => acc + t.trajectoryEfficiency, 0);
       const meanEff = (sumEff / N).toFixed(2);
+      const meanDist = (allTrialsData.reduce((a, t) => a + t.actualDistance, 0) / N).toFixed(1);
 
       // Aggregate by Condition (16 unique A & W combinations)
       const condMap = new Map();
@@ -1231,6 +1488,22 @@
 
       // Render Canvas Regression Chart
       renderChart(aggregated, intercept_a, slope_b);
+
+      // Automatically Send All 320 Trials to Google Sheets Master Database!
+      const summaryPayload = {
+        age: participant.age,
+        device: participant.device,
+        handedness: participant.handedness,
+        meanMt: meanMt,
+        errorRate: errorRate,
+        meanDistance: meanDist,
+        trajectoryEfficiency: meanEff,
+        throughput: throughput,
+        regressionA: intercept_a.toFixed(1),
+        regressionB: slope_b.toFixed(1),
+        rSquared: r2.toFixed(4)
+      };
+      sendResultsToServer(participant, allTrialsData, summaryPayload);
     }
 
     // Render Canvas Regression Chart
@@ -1395,6 +1668,7 @@
     });
 
     btnRestart.addEventListener('click', () => {
+      clearSessionProgress();
       switchScreen(screenWelcome);
     });
 
@@ -1408,6 +1682,8 @@
       participant.consentTimestamp = new Date().toLocaleString();
 
       try {
+        const pdfBlob = generateConsentPdfBlob(participant);
+        sendConsentToServer(participant, pdfBlob);
         downloadConsentPdf(participant);
       } catch (e) { }
 
@@ -1454,6 +1730,11 @@
       }
 
       finishExperiment();
+    });
+
+    // Check for existing session on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkResumeSession();
     });
 
   </script>
