@@ -859,7 +859,7 @@
     /* ==========================================================================
        PROGRESS PERSISTENCE (localStorage) — SURVIVES REFRESHES & BREAKS
        ========================================================================== */
-    function saveSessionProgress() {
+    function saveSessionProgress(inBreak = false) {
       try {
         const session = {
           participant,
@@ -868,6 +868,7 @@
           currentOverallTrial,
           allTrialsData,
           blockTasks,
+          inBreak: inBreak,
           savedAt: new Date().toISOString()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
@@ -886,8 +887,14 @@
         if (!raw) return;
         const session = JSON.parse(raw);
         if (session && session.participant && session.currentOverallTrial > 0 && session.currentOverallTrial < TOTAL_TRIALS) {
-          resumeDetails.textContent = `Block ${session.currentBlock}/${NUM_BLOCKS} · Trial ${session.currentTrialInBlock + 1}/${TRIALS_PER_BLOCK}`;
-          resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You have completed ${session.currentOverallTrial} of ${TOTAL_TRIALS} trials.`;
+          const isBreak = session.inBreak || (session.currentTrialInBlock >= (session.blockTasks && session.blockTasks.length ? session.blockTasks.length : TRIALS_PER_BLOCK));
+          if (isBreak) {
+            resumeDetails.textContent = `Completed Block ${session.currentBlock - 1}/${NUM_BLOCKS} · Ready for Block ${session.currentBlock}`;
+            resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You completed Block ${session.currentBlock - 1} (${session.currentOverallTrial} of ${TOTAL_TRIALS} trials).`;
+          } else {
+            resumeDetails.textContent = `Block ${session.currentBlock}/${NUM_BLOCKS} · Trial ${session.currentTrialInBlock + 1}/${TRIALS_PER_BLOCK}`;
+            resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You have completed ${session.currentOverallTrial} of ${TOTAL_TRIALS} trials.`;
+          }
           resumeBanner.style.display = 'block';
         }
       } catch (e) {
@@ -904,18 +911,29 @@
       currentTrialInBlock = session.currentTrialInBlock;
       currentOverallTrial = session.currentOverallTrial;
       allTrialsData = session.allTrialsData || [];
-      blockTasks = (session.blockTasks && session.blockTasks.length > 0) ? session.blockTasks : generateBlockTasks();
+
+      const isBreak = session.inBreak || (session.currentTrialInBlock >= (session.blockTasks && session.blockTasks.length ? session.blockTasks.length : TRIALS_PER_BLOCK));
 
       lblParticipant.textContent = participant.id;
       lblDevice.textContent = participant.device;
       lblProgress.textContent = `${currentOverallTrial} / ${TOTAL_TRIALS}`;
 
-      switchScreen(screenTest);
-      requestAnimationFrame(() => {
-        resetToCenter();
-        prepareNextTrial();
-        showFeedback(`Resumed Session for ${participant.id}`, 'success');
-      });
+      if (isBreak) {
+        // Participant paused during a rest break between blocks -> resume cleanly at Break Screen!
+        currentTrialInBlock = 0;
+        breakText.innerHTML = `Welcome back! You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS} (${allTrialsData.length} trials recorded).<br>Take a short rest to relax your hand and wrist. When you are ready, click below to proceed to Block ${currentBlock}.`;
+        switchScreen(screenBreak);
+        showFeedback(`Resumed at Block ${currentBlock} Break`, 'success');
+      } else {
+        // Participant paused mid-block during trials -> resume exact trial!
+        blockTasks = (session.blockTasks && session.blockTasks.length > 0) ? session.blockTasks : generateBlockTasks();
+        switchScreen(screenTest);
+        requestAnimationFrame(() => {
+          resetToCenter();
+          prepareNextTrial();
+          showFeedback(`Resumed Session for ${participant.id}`, 'success');
+        });
+      }
     });
 
     btnDiscardSession.addEventListener('click', () => {
@@ -1253,7 +1271,9 @@
         // Block completed!
         if (currentBlock < NUM_BLOCKS) {
           currentBlock++;
-          saveSessionProgress();
+          currentTrialInBlock = 0; // Reset trial pointer immediately for upcoming block
+          blockTasks = []; // Will be cleanly populated when next block begins
+          saveSessionProgress(true); // Persist break state so refreshes never skip blocks
           breakText.innerHTML = `You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS}.<br>Take a short rest to relax your hand and wrist. Your progress is saved automatically. When you are ready, click below to proceed to Block ${currentBlock}.`;
           switchScreen(screenBreak);
         } else {

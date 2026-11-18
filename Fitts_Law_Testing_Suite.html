@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -190,7 +191,8 @@
       letter-spacing: 0.05em;
     }
 
-    .form-group input, .form-group select {
+    .form-group input,
+    .form-group select {
       padding: 8px 12px;
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -199,7 +201,8 @@
       transition: border-color 0.2s;
     }
 
-    .form-group input:focus, .form-group select:focus {
+    .form-group input:focus,
+    .form-group select:focus {
       border-color: var(--primary);
     }
 
@@ -305,9 +308,17 @@
     }
 
     @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.6); }
-      70% { box-shadow: 0 0 0 18px rgba(5, 150, 105, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 18px rgba(5, 150, 105, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
+      }
     }
 
     /* Center Anchor Crosshair */
@@ -322,7 +333,8 @@
       z-index: 5;
     }
 
-    .center-anchor::before, .center-anchor::after {
+    .center-anchor::before,
+    .center-anchor::after {
       content: '';
       position: absolute;
       background: #cbd5e1;
@@ -551,6 +563,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Top Header -->
@@ -583,18 +596,28 @@
           </div>
           <p id="resume-text">An in-progress experimental session was found on this device.</p>
           <div style="display: flex; gap: 10px; margin-top: 12px;">
-            <button id="btn-resume-session" class="btn" style="padding: 8px 16px; font-size: 0.85rem; width: auto;">▶️ Resume Session</button>
-            <button id="btn-discard-session" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem; width: auto;">Start New</button>
+            <button id="btn-resume-session" class="btn" style="padding: 8px 16px; font-size: 0.85rem; width: auto;">▶️
+              Resume Session</button>
+            <button id="btn-discard-session" class="btn btn-secondary"
+              style="padding: 8px 16px; font-size: 0.85rem; width: auto;">Start New</button>
           </div>
         </div>
 
         <div class="consent-box">
           <strong>Electronic Informed Consent Statement:</strong><br><br>
-          You are invited to participate in a human-computer interaction research experiment measuring pointing and clicking performance. In this study, you will complete 10 blocks of 32 target acquisition trials (total 320 trials). For each trial, you will reposition your cursor at the center of the screen, then move and click on a randomly generated circular target as fast and accurately as possible.<br><br>
-          <strong>Eligibility:</strong> You must be 18 years of age or older and possess typical computer usage abilities with your selected pointing device.<br><br>
-          <strong>Risks & Benefits:</strong> There are no anticipated risks beyond normal computer mouse/trackpad use. You may take breaks between blocks.<br><br>
-          <strong>Voluntary Participation:</strong> Your participation is voluntary. You may withdraw at any time. By checking the box below and clicking "I Agree and Begin", you confirm that you are at least 18 years old, understand the experiment instructions, and freely consent to participate.<br><br>
-          <em>Note: Clicking "I Agree" will automatically save your signed Informed Consent Form PDF and register your participant ID.</em>
+          You are invited to participate in a human-computer interaction research experiment measuring pointing and
+          clicking performance. In this study, you will complete 10 blocks of 32 target acquisition trials (total 320
+          trials). For each trial, you will reposition your cursor at the center of the screen, then move and click on a
+          randomly generated circular target as fast and accurately as possible.<br><br>
+          <strong>Eligibility:</strong> You must be 18 years of age or older and possess typical computer usage
+          abilities with your selected pointing device.<br><br>
+          <strong>Risks & Benefits:</strong> There are no anticipated risks beyond normal computer mouse/trackpad use.
+          You may take breaks between blocks.<br><br>
+          <strong>Voluntary Participation:</strong> Your participation is voluntary. You may withdraw at any time. By
+          checking the box below and clicking "I Agree and Begin", you confirm that you are at least 18 years old,
+          understand the experiment instructions, and freely consent to participate.<br><br>
+          <em>Note: Clicking "I Agree" will automatically save your signed Informed Consent Form PDF and register your
+            participant ID.</em>
         </div>
 
         <div class="form-grid">
@@ -658,7 +681,8 @@
     <div id="screen-break" class="view-screen">
       <div class="break-card">
         <h2>🎉 Block Completed!</h2>
-        <p id="break-text">You have completed Block 1 of 10.<br>Take a short rest to relax your hand and wrist. Your progress is saved automatically. When you are ready, click below to proceed to the next block.</p>
+        <p id="break-text">You have completed Block 1 of 10.<br>Take a short rest to relax your hand and wrist. Your
+          progress is saved automatically. When you are ready, click below to proceed to the next block.</p>
         <button id="btn-next-block" class="btn">Resume Next Block</button>
       </div>
     </div>
@@ -689,7 +713,7 @@
         </div>
 
         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">
-          Fitts' Law Regression Fit: <strong id="res-eq" style="color: var(--text);">MT = a + b · ID</strong> | 
+          Fitts' Law Regression Fit: <strong id="res-eq" style="color: var(--text);">MT = a + b · ID</strong> |
           R² = <strong id="res-r2" style="color: var(--primary);">0.00</strong>
         </div>
 
@@ -722,7 +746,7 @@
     // 1. Follow the steps in GOOGLE_SHEETS_SETUP.md to deploy Code.gs
     // 2. Paste your Google Apps Script Web App URL below:
     // =========================================================================
-    const GOOGLE_SCRIPT_WEBHOOK_URL = ""; 
+    const GOOGLE_SCRIPT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyfkjmlhL7u6uW4t-BFl76Cf5xJxc_PECtIpC2SI4X6BZga0_XvXScihbZdDhigKfeq/exec";
 
     // Experimental Configuration (4 Distances, 4 Widths, 2 Directions = 32 distinct tasks)
     const AMPLITUDES = [120, 240, 360, 480]; // px from center
@@ -774,7 +798,7 @@
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // DOM Elements
@@ -835,7 +859,7 @@
     /* ==========================================================================
        PROGRESS PERSISTENCE (localStorage) — SURVIVES REFRESHES & BREAKS
        ========================================================================== */
-    function saveSessionProgress() {
+    function saveSessionProgress(inBreak = false) {
       try {
         const session = {
           participant,
@@ -844,6 +868,7 @@
           currentOverallTrial,
           allTrialsData,
           blockTasks,
+          inBreak: inBreak,
           savedAt: new Date().toISOString()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
@@ -862,8 +887,14 @@
         if (!raw) return;
         const session = JSON.parse(raw);
         if (session && session.participant && session.currentOverallTrial > 0 && session.currentOverallTrial < TOTAL_TRIALS) {
-          resumeDetails.textContent = `Block ${session.currentBlock}/${NUM_BLOCKS} · Trial ${session.currentTrialInBlock + 1}/${TRIALS_PER_BLOCK}`;
-          resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You have completed ${session.currentOverallTrial} of ${TOTAL_TRIALS} trials.`;
+          const isBreak = session.inBreak || (session.currentTrialInBlock >= (session.blockTasks && session.blockTasks.length ? session.blockTasks.length : TRIALS_PER_BLOCK));
+          if (isBreak) {
+            resumeDetails.textContent = `Completed Block ${session.currentBlock - 1}/${NUM_BLOCKS} · Ready for Block ${session.currentBlock}`;
+            resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You completed Block ${session.currentBlock - 1} (${session.currentOverallTrial} of ${TOTAL_TRIALS} trials).`;
+          } else {
+            resumeDetails.textContent = `Block ${session.currentBlock}/${NUM_BLOCKS} · Trial ${session.currentTrialInBlock + 1}/${TRIALS_PER_BLOCK}`;
+            resumeText.textContent = `Active session found for Participant ${session.participant.id} (${session.participant.device}). You have completed ${session.currentOverallTrial} of ${TOTAL_TRIALS} trials.`;
+          }
           resumeBanner.style.display = 'block';
         }
       } catch (e) {
@@ -880,18 +911,29 @@
       currentTrialInBlock = session.currentTrialInBlock;
       currentOverallTrial = session.currentOverallTrial;
       allTrialsData = session.allTrialsData || [];
-      blockTasks = (session.blockTasks && session.blockTasks.length > 0) ? session.blockTasks : generateBlockTasks();
+
+      const isBreak = session.inBreak || (session.currentTrialInBlock >= (session.blockTasks && session.blockTasks.length ? session.blockTasks.length : TRIALS_PER_BLOCK));
 
       lblParticipant.textContent = participant.id;
       lblDevice.textContent = participant.device;
       lblProgress.textContent = `${currentOverallTrial} / ${TOTAL_TRIALS}`;
 
-      switchScreen(screenTest);
-      requestAnimationFrame(() => {
-        resetToCenter();
-        prepareNextTrial();
-        showFeedback(`Resumed Session for ${participant.id}`, 'success');
-      });
+      if (isBreak) {
+        // Participant paused during a rest break between blocks -> resume cleanly at Break Screen!
+        currentTrialInBlock = 0;
+        breakText.innerHTML = `Welcome back! You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS} (${allTrialsData.length} trials recorded).<br>Take a short rest to relax your hand and wrist. When you are ready, click below to proceed to Block ${currentBlock}.`;
+        switchScreen(screenBreak);
+        showFeedback(`Resumed at Block ${currentBlock} Break`, 'success');
+      } else {
+        // Participant paused mid-block during trials -> resume exact trial!
+        blockTasks = (session.blockTasks && session.blockTasks.length > 0) ? session.blockTasks : generateBlockTasks();
+        switchScreen(screenTest);
+        requestAnimationFrame(() => {
+          resetToCenter();
+          prepareNextTrial();
+          showFeedback(`Resumed Session for ${participant.id}`, 'success');
+        });
+      }
     });
 
     btnDiscardSession.addEventListener('click', () => {
@@ -1015,7 +1057,7 @@
       text('F1', 9, 65, 280, 'I have read the informed consent statement, am 18+ years of age, and freely agree to participate in this study.', 0.15, 0.2, 0.28);
       text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by Participant ' + p.id, 0.08, 0.5, 0.2);
       text('F1', 8.5, 65, 244, 'Timestamp: ' + (p.consentTimestamp || new Date().toLocaleString()) + ' | Workstation: HCI-Lab-Station-04', 0.35, 0.45, 0.4);
-      text('F1', 8.5, 65, 232, 'Verification Hash: SHA256:' + Math.abs((p.id + p.age).split('').reduce((a,c)=>((a<<5)-a)+c.charCodeAt(0),0)).toString(16).toUpperCase() + '-IRB-VERIFIED', 0.35, 0.45, 0.4);
+      text('F1', 8.5, 65, 232, 'Verification Hash: SHA256:' + Math.abs((p.id + p.age).split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0)).toString(16).toUpperCase() + '-IRB-VERIFIED', 0.35, 0.45, 0.4);
 
       const encoder = new TextEncoder();
       const contentBytes = encoder.encode(content);
@@ -1062,7 +1104,7 @@
         xref += String(offsets[j]).padStart(10, '0') + ' 00000 n \n';
       }
       const trailer = 'trailer\n<< /Size ' + (offsets.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + startXref + '\n%%EOF';
-      
+
       const fullPdfStr = pdfStr + xref + trailer;
       return new Blob([fullPdfStr], { type: 'application/pdf' });
     }
@@ -1229,7 +1271,9 @@
         // Block completed!
         if (currentBlock < NUM_BLOCKS) {
           currentBlock++;
-          saveSessionProgress();
+          currentTrialInBlock = 0; // Reset trial pointer immediately for upcoming block
+          blockTasks = []; // Will be cleanly populated when next block begins
+          saveSessionProgress(true); // Persist break state so refreshes never skip blocks
           breakText.innerHTML = `You have completed Block ${currentBlock - 1} of ${NUM_BLOCKS}.<br>Take a short rest to relax your hand and wrist. Your progress is saved automatically. When you are ready, click below to proceed to Block ${currentBlock}.`;
           switchScreen(screenBreak);
         } else {
@@ -1661,7 +1705,7 @@
         const pdfBlob = generateConsentPdfBlob(participant);
         sendConsentToServer(participant, pdfBlob);
         downloadConsentPdf(participant);
-      } catch (e) {}
+      } catch (e) { }
 
       allTrialsData = [];
       const baseA = 180 + Math.random() * 40;
@@ -1715,4 +1759,5 @@
 
   </script>
 </body>
+
 </html>
