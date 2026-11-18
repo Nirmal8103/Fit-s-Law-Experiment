@@ -19,19 +19,37 @@ const SPREADSHEET_NAME = "Fitts_Law_Master_Results";
 const CONSENT_FOLDER_NAME = "Fitts Law - Consent Forms";
 
 /**
- * Custom Menu when opening the Google Sheet
+ * STANDALONE RUNNER — Click "Run" on this function in script.google.com!
+ * It opens your "Fitts_Law_Master_Results" spreadsheet and builds all 4 analysis tabs.
+ */
+function runGenerateAnalysisTabs() {
+  const ss = getOrCreateSpreadsheet(SPREADSHEET_NAME);
+  buildAllAnalysisTabs(ss);
+  Logger.log("✅ SUCCESS! All 4 analysis tabs created in: " + ss.getUrl());
+}
+
+/**
+ * Menu trigger (works if script is container-bound inside Google Sheets)
  */
 function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu("📊 Fitts' Law Tools")
-    .addItem("🛠️ Generate / Refresh Analysis Tabs", "menuGenerateAnalysisTabs")
-    .addToUi();
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu("📊 Fitts' Law Tools")
+      .addItem("🛠️ Generate / Refresh Analysis Tabs", "menuGenerateAnalysisTabs")
+      .addToUi();
+  } catch (e) {
+    // Standalone script running outside container UI
+  }
 }
 
 function menuGenerateAnalysisTabs() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.getActiveSpreadsheet() || getOrCreateSpreadsheet(SPREADSHEET_NAME);
   buildAllAnalysisTabs(ss);
-  SpreadsheetApp.getUi().alert("✅ All 4 Analysis Tabs have been generated with live dynamic formulas!\n\nAs participants submit trials, every metric, regression equation, and chart will update automatically.");
+  try {
+    SpreadsheetApp.getUi().alert("✅ All 4 Analysis Tabs have been generated with live dynamic formulas!\n\nAs participants submit trials, every metric, regression equation, and chart will update automatically.");
+  } catch (e) {
+    Logger.log("Tabs generated successfully.");
+  }
 }
 
 function doPost(e) {
