@@ -290,9 +290,9 @@ function buildConditionAggregatesTab(ss) {
     const W = conditions[i][1];
     const r = i + 2;
     rows.push([
-      `A${A}/W${W}`,
-      A,
-      W,
+      `="A${A}/W${W}"`,
+      `=${A}`,
+      `=${W}`,
       `=ROUND(LOG(B${r}/C${r} + 1, 2), 2)`,
       `=ROUND(LOG(2*B${r}/C${r}, 2), 2)`,
       `=IFERROR(ROUND(AVERAGEIFS(Raw_Trials!$M:$M, Raw_Trials!$H:$H, B${r}, Raw_Trials!$I:$I, C${r}), 1), "")`,
@@ -352,9 +352,9 @@ function buildDirectionalAnalysisTab(ss) {
     const W = conditions[i][1];
     const r = i + 2;
     rows.push([
-      `A${A}/W${W}`,
-      A,
-      W,
+      `="A${A}/W${W}"`,
+      `=${A}`,
+      `=${W}`,
       `=ROUND(LOG(B${r}/C${r} + 1, 2), 2)`,
       `=IFERROR(ROUND(AVERAGEIFS(Raw_Trials!$M:$M, Raw_Trials!$H:$H, B${r}, Raw_Trials!$I:$I, C${r}, Raw_Trials!$J:$J, "Left"), 1), "")`,
       `=IFERROR(ROUND(AVERAGEIFS(Raw_Trials!$M:$M, Raw_Trials!$H:$H, B${r}, Raw_Trials!$I:$I, C${r}, Raw_Trials!$J:$J, "Right"), 1), "")`,
@@ -398,7 +398,7 @@ function buildLearningCurveTab(ss) {
   for (let b = 1; b <= 10; b++) {
     const r = b + 1;
     rows.push([
-      b,
+      `=${b}`,
       `=IFERROR(ROUND(AVERAGEIFS(Raw_Trials!$M:$M, Raw_Trials!$E:$E, A${r}), 1), "")`,
       `=IFERROR(ROUND(COUNTIFS(Raw_Trials!$E:$E, A${r}, Raw_Trials!$Q:$Q, ">0") / COUNTIFS(Raw_Trials!$E:$E, A${r}) * 100, 2), 0)`,
       `=IFERROR(ROUND(AVERAGEIFS(Raw_Trials!$P:$P, Raw_Trials!$E:$E, A${r}), 3), "")`,
