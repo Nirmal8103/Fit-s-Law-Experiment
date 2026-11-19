@@ -323,6 +323,70 @@ function buildConditionAggregatesTab(ss) {
     sheet.getRange(rowIdx, 2).setFormula(kpiLabels[k][1]);
   }
   sheet.getRange(21, 1, kpiLabels.length, 2).setBackground("#F1F5F9");
+
+  // Remove previous charts to prevent duplicates upon regeneration
+  const existingCharts = sheet.getCharts();
+  for (let c = 0; c < existingCharts.length; c++) {
+    sheet.removeChart(existingCharts[c]);
+  }
+
+  // Embed Chart 1A: Shannon Formulation Regression Scatter Plot (X = ID_Shannon Col D, Y = Mean_MT Col F)
+  try {
+    const chartShannon = sheet.newChart()
+      .setChartType(Charts.ChartType.SCATTER)
+      .addRange(sheet.getRange("D1:D17"))
+      .addRange(sheet.getRange("F1:F17"))
+      .setPosition(2, 8, 10, 0) // Row 2, Column H
+      .setOption('title', "Fitts' Law Regression (Shannon Model): MT vs. ID")
+      .setOption('hAxis', { title: 'Index of Difficulty, ID (bits) [Shannon: log₂(A/W + 1)]' })
+      .setOption('vAxis', { title: 'Mean Movement Time, MT (ms)' })
+      .setOption('legend', { position: 'none' })
+      .setOption('trendlines', {
+        0: {
+          type: 'linear',
+          color: '#2563EB',
+          lineWidth: 2,
+          opacity: 0.8,
+          showR2: true,
+          visibleInLegend: true
+        }
+      })
+      .setOption('width', 520)
+      .setOption('height', 360)
+      .build();
+    sheet.insertChart(chartShannon);
+  } catch (err) {
+    console.warn("Chart 1A insertion notice: " + err);
+  }
+
+  // Embed Chart 1B: Fitts 1954 Formulation Regression Scatter Plot (X = ID_Fitts Col E, Y = Mean_MT Col F)
+  try {
+    const chartFitts = sheet.newChart()
+      .setChartType(Charts.ChartType.SCATTER)
+      .addRange(sheet.getRange("E1:E17"))
+      .addRange(sheet.getRange("F1:F17"))
+      .setPosition(20, 8, 10, 0) // Row 20, Column H
+      .setOption('title', "Fitts' Law Regression (1954 Formulation): MT vs. ID")
+      .setOption('hAxis', { title: 'Index of Difficulty, ID (bits) [Fitts: log₂(2A/W)]' })
+      .setOption('vAxis', { title: 'Mean Movement Time, MT (ms)' })
+      .setOption('legend', { position: 'none' })
+      .setOption('trendlines', {
+        0: {
+          type: 'linear',
+          color: '#DC2626',
+          lineWidth: 2,
+          opacity: 0.8,
+          showR2: true,
+          visibleInLegend: true
+        }
+      })
+      .setOption('width', 520)
+      .setOption('height', 360)
+      .build();
+    sheet.insertChart(chartFitts);
+  } catch (err) {
+    console.warn("Chart 1B insertion notice: " + err);
+  }
 }
 
 // 2. Directional_Analysis Tab (Left vs. Right — Question 1)
@@ -382,6 +446,32 @@ function buildDirectionalAnalysisTab(ss) {
     sheet.getRange(rowIdx, 2).setFormula(stats[s][1]);
   }
   sheet.getRange(21, 1, stats.length, 2).setBackground("#F1F5F9");
+
+  // Remove previous charts to prevent duplicates
+  const existingCharts = sheet.getCharts();
+  for (let c = 0; c < existingCharts.length; c++) {
+    sheet.removeChart(existingCharts[c]);
+  }
+
+  // Embed Chart 2: Left vs. Right Clustered Column Chart (Conditions Col A, Left MT Col E, Right MT Col F)
+  try {
+    const chartDir = sheet.newChart()
+      .setChartType(Charts.ChartType.COLUMN)
+      .addRange(sheet.getRange("A1:A17"))
+      .addRange(sheet.getRange("E1:E17"))
+      .addRange(sheet.getRange("F1:F17"))
+      .setPosition(2, 8, 10, 0) // Row 2, Column H
+      .setOption('title', "Movement Time by Direction (Left vs. Right)")
+      .setOption('hAxis', { title: 'Target Condition (Amplitude / Width)' })
+      .setOption('vAxis', { title: 'Mean Movement Time (ms)' })
+      .setOption('colors', ['#3B82F6', '#10B981']) // Blue for Left, Emerald for Right
+      .setOption('width', 600)
+      .setOption('height', 380)
+      .build();
+    sheet.insertChart(chartDir);
+  } catch (err) {
+    console.warn("Chart 2 insertion notice: " + err);
+  }
 }
 
 // 3. Learning_Curve Tab (Blocks 1–10 — Question 3 & Confounders)
@@ -410,6 +500,32 @@ function buildLearningCurveTab(ss) {
   sheet.getRange(14, 1).setValue("INTERPRETATION NOTES").setFontWeight("bold").setFontColor("#1E3A8A");
   sheet.getRange(15, 1).setValue("• Practice Effect: Look for MT decline from Block 1 to Block 4 as participants adapt to target layout.");
   sheet.getRange(16, 1).setValue("• Motor Fatigue: Check if Error Rate increases in Blocks 9-10 indicating physical wrist/eye strain.");
+
+  // Remove previous charts to prevent duplicates
+  const existingCharts = sheet.getCharts();
+  for (let c = 0; c < existingCharts.length; c++) {
+    sheet.removeChart(existingCharts[c]);
+  }
+
+  // Embed Chart 3: Learning Curve Line Chart (Blocks Col A, Mean MT Col B)
+  try {
+    const chartLearning = sheet.newChart()
+      .setChartType(Charts.ChartType.LINE)
+      .addRange(sheet.getRange("A1:A11"))
+      .addRange(sheet.getRange("B1:B11"))
+      .setPosition(2, 7, 10, 0) // Row 2, Column G
+      .setOption('title', "Learning Curve: Movement Time across Experimental Blocks (1–10)")
+      .setOption('hAxis', { title: 'Experimental Block Number' })
+      .setOption('vAxis', { title: 'Mean Movement Time (ms)' })
+      .setOption('colors', ['#2563EB'])
+      .setOption('pointSize', 6)
+      .setOption('width', 560)
+      .setOption('height', 360)
+      .build();
+    sheet.insertChart(chartLearning);
+  } catch (err) {
+    console.warn("Chart 3 insertion notice: " + err);
+  }
 }
 
 // 4. Participant_Comparison Tab (Cohort Variance — Question 2)
@@ -442,4 +558,30 @@ function buildParticipantComparisonTab(ss) {
     ]);
   }
   sheet.getRange(2, 1, rows.length, headers.length).setFormulas(rows);
+
+  // Remove previous charts to prevent duplicates
+  const existingCharts = sheet.getCharts();
+  for (let c = 0; c < existingCharts.length; c++) {
+    sheet.removeChart(existingCharts[c]);
+  }
+
+  // Embed Chart 4: Participant Speed vs. Accuracy Scatter Plot (Mean MT Col E, Error Rate Col F)
+  try {
+    const chartPart = sheet.newChart()
+      .setChartType(Charts.ChartType.SCATTER)
+      .addRange(sheet.getRange("E1:E20")) // X = Mean MT
+      .addRange(sheet.getRange("F1:F20")) // Y = Error Rate
+      .setPosition(2, 8, 10, 0) // Row 2, Column H
+      .setOption('title', "Participant Speed vs. Accuracy Tradeoff")
+      .setOption('hAxis', { title: 'Mean Movement Time (ms) [Speed]' })
+      .setOption('vAxis', { title: 'Error Rate (%) [Accuracy]' })
+      .setOption('colors', ['#8B5CF6']) // Violet dots
+      .setOption('pointSize', 7)
+      .setOption('width', 520)
+      .setOption('height', 360)
+      .build();
+    sheet.insertChart(chartPart);
+  } catch (err) {
+    console.warn("Chart 4 insertion notice: " + err);
+  }
 }
