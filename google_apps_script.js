@@ -86,79 +86,92 @@ function doPost(e) {
 
     // ACTION 2: Save All 320 Raw Trials & Participant Summary to Master Google Sheet
     if (action === "save_results") {
-      const ss = getOrCreateSpreadsheet(SPREADSHEET_NAME);
-      
-      // 1. Process Raw Trials Sheet
-      const rawSheet = getOrCreateSheet(ss, "Raw_Trials");
-      ensureRawHeaders(rawSheet);
-      
-      const trials = payload.trials || [];
-      if (trials.length > 0) {
-        const rowsToInsert = trials.map(t => [
-          t.participantId || "",
-          t.age || "",
-          t.device || "",
-          t.handedness || "",
-          t.block || "",
-          t.trialInBlock || "",
-          t.overallTrial || "",
-          t.amplitude || "",
-          t.width || "",
-          t.direction || "",
-          t.idShannon || "",
-          t.idFitts || "",
-          t.movementTime || "",
-          t.actualDistance || "",
-          t.optimalDistance || "",
-          t.trajectoryEfficiency || "",
-          t.errors || 0,
-          t.success || (t.errors === 0 ? 1 : 0),
-          payload.submittedAt || new Date().toISOString()
-        ]);
-        
-        const startRow = rawSheet.getLastRow() + 1;
-        const numRows = rowsToInsert.length;
-        const numCols = rowsToInsert[0].length;
-        rawSheet.getRange(startRow, 1, numRows, numCols).setValues(rowsToInsert);
-      }
-      
-      // 2. Process Participant Summary Sheet
-      const summarySheet = getOrCreateSheet(ss, "Participant_Summary");
-      ensureSummaryHeaders(summarySheet);
-      
-      const summary = payload.summary || {};
-      const summaryRow = [
-        payload.participantId || "",
-        summary.age || "",
-        summary.device || "",
-        summary.handedness || "",
-        trials.length,
-        summary.meanMt || "",
-        summary.errorRate || "",
-        summary.meanDistance || "",
-        summary.trajectoryEfficiency || "",
-        summary.throughput || "",
-        summary.regressionA || "",
-        summary.regressionB || "",
-        summary.rSquared || "",
-        payload.submittedAt || new Date().toISOString()
-      ];
-      summarySheet.appendRow(summaryRow);
-
-      // 3. Ensure live analysis tabs exist (auto-created on first submission)
+      // Use LockService to prevent race conditions when multiple participants finish concurrently
+      const lock = LockService.getScriptLock();
       try {
-        ensureAnalysisTabsExist(ss);
-      } catch (err) {
-        console.warn("Analysis tabs initialization note: " + err);
+        lock.waitLock(30000); // Wait up to 30 seconds for previous write to complete
+      } catch (lockErr) {
+        return responseJSON({ status: "error", message: "Server busy, please retry in a moment." });
       }
 
-      return responseJSON({
-        status: "success",
-        action: "save_results",
-        participantId: payload.participantId,
-        trialsRecorded: trials.length,
-        spreadsheetUrl: ss.getUrl()
-      });
+      try {
+        const ss = getOrCreateSpreadsheet(SPREADSHEET_NAME);
+        
+        // 1. Process Raw Trials Sheet
+        const rawSheet = getOrCreateSheet(ss, "Raw_Trials");
+        ensureRawHeaders(rawSheet);
+        
+        const trials = payload.trials || [];
+        if (trials.length > 0) {
+          const rowsToInsert = trials.map(t => [
+            t.participantId || "",
+            t.age || "",
+            t.device || "",
+            t.handedness || "",
+            t.block || "",
+            t.trialInBlock || "",
+            t.overallTrial || "",
+            t.amplitude || "",
+            t.width || "",
+            t.direction || "",
+            t.idShannon || "",
+            t.idFitts || "",
+            t.movementTime || "",
+            t.actualDistance || "",
+            t.optimalDistance || "",
+            t.trajectoryEfficiency || "",
+            t.errors || 0,
+            t.success || (t.errors === 0 ? 1 : 0),
+            payload.submittedAt || new Date().toISOString()
+          ]);
+          
+          const startRow = rawSheet.getLastRow() + 1;
+          const numRows = rowsToInsert.length;
+          const numCols = rowsToInsert[0].length;
+          rawSheet.getRange(startRow, 1, numRows, numCols).setValues(rowsToInsert);
+        }
+        
+        // 2. Process Participant Summary Sheet
+        const summarySheet = getOrCreateSheet(ss, "Participant_Summary");
+        ensureSummaryHeaders(summarySheet);
+        
+        const summary = payload.summary || {};
+        const summaryRow = [
+          payload.participantId || "",
+          summary.age || "",
+          summary.device || "",
+          summary.handedness || "",
+          trials.length,
+          summary.meanMt || "",
+          summary.errorRate || "",
+          summary.meanDistance || "",
+          summary.trajectoryEfficiency || "",
+          summary.throughput || "",
+          summary.regressionA || "",
+          summary.regressionB || "",
+          summary.rSquared || "",
+          payload.submittedAt || new Date().toISOString()
+        ];
+        summarySheet.appendRow(summaryRow);
+
+        // 3. Ensure live analysis tabs exist (auto-created on first submission)
+        try {
+          ensureAnalysisTabsExist(ss);
+        } catch (err) {
+          console.warn("Analysis tabs initialization note: " + err);
+        }
+
+        return responseJSON({
+          status: "success",
+          action: "save_results",
+          participantId: payload.participantId,
+          trialsRecorded: trials.length,
+          spreadsheetUrl: ss.getUrl()
+        });
+
+      } finally {
+        lock.releaseLock(); // Always release lock so the next participant in queue can proceed
+      }
     }
 
     return responseJSON({ status: "error", message: "Unknown action: " + action });
