@@ -374,7 +374,7 @@ function buildDirectionalAnalysisTab(ss) {
     ["Mean Rightward MT (ms):", `=IFERROR(ROUND(AVERAGE(F2:F17), 1), "")`],
     ["Overall Difference Delta (ms):", `=IFERROR(ROUND(AVERAGE(G2:G17), 1), "")`],
     ["Paired t-Test (p-value):", `=IFERROR(T.TEST(E2:E17, F2:F17, 2, 1), "")`],
-    ["Conclusion:", `=IF(B24<0.05, "Statistically Significant Difference (p < 0.05)", "No Significant Difference")`]
+    ["Conclusion:", `=IF(AND(ISNUMBER(B24), B24<0.05), "Statistically Significant Difference (p < 0.05)", IF(ISNUMBER(B24), "No Significant Difference (p >= 0.05)", "Awaiting Data"))`]
   ];
   for (let s = 0; s < stats.length; s++) {
     const rowIdx = 21 + s;

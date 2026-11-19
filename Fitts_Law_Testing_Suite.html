@@ -1442,8 +1442,9 @@
       const sumMt = allTrialsData.reduce((acc, t) => acc + t.movementTime, 0);
       const meanMt = Math.round(sumMt / N);
 
-      const totalErrors = allTrialsData.reduce((acc, t) => acc + t.errors, 0);
-      const errorRate = parseFloat(((totalErrors / N) * 100).toFixed(2));
+      // ISO 9241-9: Percentage of trials containing at least one uncorrected error
+      const trialsWithErrors = allTrialsData.filter(t => t.errors > 0).length;
+      const errorRate = parseFloat(((trialsWithErrors / N) * 100).toFixed(2));
 
       const sumEff = allTrialsData.reduce((acc, t) => acc + t.trajectoryEfficiency, 0);
       const meanEff = (sumEff / N).toFixed(2);
@@ -1502,8 +1503,8 @@
       resIp.textContent = `${throughput}`;
       resEff.textContent = `${meanEff}x`;
 
-      const signStr = intercept_a >= 0 ? `+ ${intercept_a.toFixed(1)}` : `- ${Math.abs(intercept_a).toFixed(1)}`;
-      resEq.textContent = `MT = ${slope_b.toFixed(1)} · ID ${signStr} ms`;
+      const slopeSign = slope_b >= 0 ? `+ ${slope_b.toFixed(1)}` : `- ${Math.abs(slope_b).toFixed(1)}`;
+      resEq.textContent = `MT = ${intercept_a.toFixed(1)} ${slopeSign} · ID ms`;
       resR2.textContent = r2.toFixed(3);
 
       // Render Canvas Regression Chart
@@ -1651,6 +1652,7 @@
             mtList: [],
             distList: [],
             errCount: 0,
+            trialsWithErr: 0,
             trialCount: 0
           });
         }
@@ -1658,24 +1660,25 @@
         c.mtList.push(t.movementTime);
         c.distList.push(t.actualDistance);
         c.errCount += t.errors;
+        if (t.errors > 0) c.trialsWithErr++;
         c.trialCount++;
       });
 
       const headers = [
         "Amplitude_px", "Width_px", "Direction", "ID_Shannon", "ID_Fitts",
         "N_Trials", "Mean_MT_ms", "SD_MT_ms", "Mean_Actual_Dist_px", "Trajectory_Efficiency",
-        "Total_Errors", "Error_Rate_Pct"
+        "Total_Error_Clicks", "Error_Rate_Pct"
       ];
       const rows = [headers];
 
       condMap.forEach(c => {
         const n = c.trialCount;
         const meanMt = c.mtList.reduce((a, b) => a + b, 0) / n;
-        const variance = c.mtList.reduce((a, b) => a + Math.pow(b - meanMt, 2), 0) / n;
+        const variance = n > 1 ? c.mtList.reduce((a, b) => a + Math.pow(b - meanMt, 2), 0) / (n - 1) : 0;
         const sdMt = Math.sqrt(variance);
         const meanDist = c.distList.reduce((a, b) => a + b, 0) / n;
         const eff = (meanDist / c.amplitude).toFixed(3);
-        const errRate = ((c.errCount / n) * 100).toFixed(2);
+        const errRate = ((c.trialsWithErr / n) * 100).toFixed(2);
 
         rows.push([
           c.amplitude, c.width, c.direction, c.idShannon, c.idFitts,
