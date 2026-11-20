@@ -169,6 +169,62 @@
       user-select: text;
     }
 
+    /* Quick 3-Step Participant Instructions */
+    .instructions-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      text-align: left;
+    }
+
+    .instructions-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .instruction-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .instruction-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.86rem;
+      line-height: 1.45;
+      color: #1e293b;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: #2563eb;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .instruction-step strong {
+      color: #0f172a;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -618,6 +674,27 @@
           understand the experiment instructions, and freely consent to participate.<br><br>
           <em>Note: Clicking "I Agree" will automatically save your signed Informed Consent Form PDF and register your
             participant ID.</em>
+        </div>
+
+        <!-- Quick 3-Step Participant Instructions -->
+        <div class="instructions-card">
+          <div class="instructions-header">
+            <span>📋 How to Perform the Experiment (Quick Guide)</span>
+          </div>
+          <div class="instruction-steps">
+            <div class="instruction-step">
+              <span class="step-badge">1</span>
+              <div><strong>Click the Center START Circle:</strong> For every trial, reposition your cursor at the center of the screen and click the green circle to activate the trial timer.</div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">2</span>
+              <div><strong>Acquire the Blue Goal Target:</strong> Swiftly move your cursor and click inside the circular blue target as fast and accurately as possible. (Missed clicks outside the circle play an error tone—keep clicking until you hit the circle).</div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-badge">3</span>
+              <div><strong>Take Rest Breaks Between Blocks:</strong> You will complete 10 blocks (32 trials each). Feel free to relax your hand and wrist during the rest screens. When all 10 blocks are finished, your results auto-save to the researcher's database!</div>
+            </div>
+          </div>
         </div>
 
         <div class="form-grid">
