@@ -622,12 +622,8 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label for="input-pid">Participant ID (Auto-Generated)</label>
-            <input type="text" id="input-pid" readonly style="background-color: #f1f5f9; color: #475569; font-weight: 600; cursor: not-allowed;">
-          </div>
-          <div class="form-group">
-            <label for="input-name">Full Name <span style="color: var(--danger);">*</span></label>
-            <input type="text" id="input-name" placeholder="Enter your full name">
+            <label for="input-pid">Full Name <span style="color: var(--danger);">*</span></label>
+            <input type="text" id="input-pid" placeholder="e.g. John Doe">
           </div>
           <div class="form-group">
             <label for="input-age">Age (Years, ≥ 18) <span style="color: var(--danger);">*</span></label>
@@ -818,7 +814,6 @@
     const screenResults = document.getElementById('screen-results');
 
     const inputPid = document.getElementById('input-pid');
-    const inputName = document.getElementById('input-name');
     const inputAge = document.getElementById('input-age');
     const selectDevice = document.getElementById('select-device');
     const selectHand = document.getElementById('select-hand');
@@ -963,21 +958,9 @@
       }
     });
 
-    // Auto-Generate Participant ID (e.g. P04-8A3B)
-    function generateAutoParticipantId() {
-      const existing = localStorage.getItem('fitts_auto_pid');
-      if (existing && existing.startsWith('P')) {
-        return existing;
-      }
-      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-      const newId = `P_${randomSuffix}`;
-      try { localStorage.setItem('fitts_auto_pid', newId); } catch(e){}
-      return newId;
-    }
-
     // Consent & Input Validation with Real-Time User Feedback
     function validateConsent(showFeedbackMsg = false) {
-      const nameVal = inputName ? inputName.value.trim() : '';
+      const nameVal = inputPid ? inputPid.value.trim() : '';
       const ageVal = parseInt(inputAge ? inputAge.value : '', 10);
       const deviceVal = selectDevice ? selectDevice.value : '';
       const handVal = selectHand ? selectHand.value : '';
@@ -1017,7 +1000,7 @@
       return isValid;
     }
 
-    [inputName, inputAge, selectDevice, selectHand, chkConsent].forEach(el => {
+    [inputPid, inputAge, selectDevice, selectHand, chkConsent].forEach(el => {
       if (el) {
         el.addEventListener('input', () => validateConsent(chkConsent && chkConsent.checked));
         el.addEventListener('change', () => validateConsent(chkConsent && chkConsent.checked));
@@ -1090,10 +1073,8 @@
       line(50, 712, 562, 712, 2, 0.12, 0.23, 0.54);
 
       // Metadata Box
-      rect(50, 615, 512, 100, 0.96, 0.97, 0.99, 0.75, 0.82, 0.92);
-      text('F2', 10, 65, 695, 'Participant Name:', 0.12, 0.23, 0.54);
-      text('F2', 10, 200, 695, p.name || '(not provided)', 0.06, 0.09, 0.16);
-      text('F2', 10, 65, 680, 'Participant ID:', 0.12, 0.23, 0.54);
+      rect(50, 615, 512, 85, 0.96, 0.97, 0.99, 0.75, 0.82, 0.92);
+      text('F2', 10, 65, 680, 'Full Name:', 0.12, 0.23, 0.54);
       text('F2', 10, 160, 680, p.id, 0.06, 0.09, 0.16);
       text('F2', 10, 310, 680, 'Assigned Device:', 0.12, 0.23, 0.54);
       text('F1', 10, 420, 680, p.device, 0.06, 0.09, 0.16);
@@ -1134,7 +1115,7 @@
 
       text('F2', 10, 65, 296, '[X] AGREED AND CONFIRMED', 0.08, 0.55, 0.22);
       text('F1', 9, 65, 280, 'I have read the informed consent statement, am 18+ years of age, and freely agree to participate in this study.', 0.15, 0.2, 0.28);
-      text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by ' + (p.name || p.id) + ' (ID: ' + p.id + ')', 0.08, 0.5, 0.2);
+      text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by ' + p.id, 0.08, 0.5, 0.2);
       text('F1', 8.5, 65, 244, 'Timestamp: ' + (p.consentTimestamp || new Date().toLocaleString()) + ' | Workstation: HCI-Lab-Station-04', 0.35, 0.45, 0.4);
       text('F1', 8.5, 65, 232, 'Verification Hash: SHA256:' + Math.abs((p.id + p.age).split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0)).toString(16).toUpperCase() + '-IRB-VERIFIED', 0.35, 0.45, 0.4);
 
@@ -1193,7 +1174,8 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Consent_Form_${p.id}.pdf`;
+      const safeName = (p.id || 'Participant').replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.download = `Consent_Form_${safeName}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1214,10 +1196,11 @@
         reader.readAsDataURL(pdfBlob);
         reader.onloadend = async () => {
           const base64Data = reader.result.split(',')[1];
+          const safeName = (p.id || 'Participant').replace(/[^a-zA-Z0-9_-]/g, '_');
           const payload = {
             action: 'save_consent',
             participantId: p.id,
-            fileName: `Consent_Form_${p.id}.pdf`,
+            fileName: `Consent_Form_${safeName}.pdf`,
             pdfBase64: base64Data
           };
           await fetch(GOOGLE_SCRIPT_WEBHOOK_URL, {
@@ -1285,8 +1268,8 @@
       // Belt-and-suspenders validation — also checked via disabled button state
       if (!validateConsent(true)) return;
 
-      participant.id = inputPid.value.trim() || generateAutoParticipantId();
-      participant.name = inputName ? inputName.value.trim() : '';
+      participant.id = inputPid.value.trim();
+      participant.name = participant.id;
       participant.age = parseInt(inputAge.value, 10);
       participant.device = selectDevice.value;
       participant.handedness = selectHand.value;
@@ -1720,7 +1703,8 @@
           t.errors, t.success
         ]);
       });
-      exportToCsv(`Fitts_Law_Trials_${participant.id}.csv`, rows);
+      const safeName = (participant.id || 'Participant').replace(/[^a-zA-Z0-9_-]/g, '_');
+      exportToCsv(`Fitts_Law_Trials_${safeName}.csv`, rows);
     });
 
     btnExportSummary.addEventListener('click', () => {
@@ -1772,7 +1756,8 @@
         ]);
       });
 
-      exportToCsv(`Fitts_Law_Condition_Summary_${participant.id}.csv`, rows);
+      const safeName = (participant.id || 'Participant').replace(/[^a-zA-Z0-9_-]/g, '_');
+      exportToCsv(`Fitts_Law_Condition_Summary_${safeName}.csv`, rows);
     });
 
     btnRestart.addEventListener('click', () => {
@@ -1782,8 +1767,8 @@
 
     // Automated Session Runner (Simulation for Demonstrations/Verification)
     btnRunSim.addEventListener('click', () => {
-      participant.id = inputPid.value.trim() || generateAutoParticipantId();
-      participant.name = (inputName && inputName.value.trim()) ? inputName.value.trim() : 'SimUser';
+      participant.id = (inputPid && inputPid.value.trim()) ? inputPid.value.trim() : 'SimUser';
+      participant.name = participant.id;
       participant.age = parseInt(inputAge.value, 10) || 22;
       participant.device = selectDevice.value || 'Mouse';
       participant.handedness = selectHand.value || 'Right';
@@ -1843,9 +1828,6 @@
 
     // Check for existing session on page load
     window.addEventListener('DOMContentLoaded', () => {
-      // Auto-assign a unique Participant ID and display it in the (read-only) field
-      const autoId = generateAutoParticipantId();
-      if (inputPid) inputPid.value = autoId;
       checkResumeSession();
     });
 
