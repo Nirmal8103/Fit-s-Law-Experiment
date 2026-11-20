@@ -622,28 +622,36 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label for="input-pid">Participant ID</label>
-            <input type="text" id="input-pid" value="P01">
+            <label for="input-pid">Participant ID (Auto-Generated)</label>
+            <input type="text" id="input-pid" readonly style="background-color: #f1f5f9; color: #475569; font-weight: 600; cursor: not-allowed;">
           </div>
           <div class="form-group">
-            <label for="input-age">Age (Years, must be ≥ 18)</label>
-            <input type="number" id="input-age" value="23" min="18" max="99">
+            <label for="input-name">Full Name <span style="color: var(--danger);">*</span></label>
+            <input type="text" id="input-name" placeholder="Enter your full name">
           </div>
           <div class="form-group">
-            <label for="select-device">Input Device</label>
+            <label for="input-age">Age (Years, ≥ 18) <span style="color: var(--danger);">*</span></label>
+            <input type="number" id="input-age" placeholder="e.g. 24" min="18" max="99">
+          </div>
+          <div class="form-group">
+            <label for="select-device">Input Device <span style="color: var(--danger);">*</span></label>
             <select id="select-device">
+              <option value="" disabled selected>-- Select Pointing Device --</option>
               <option value="Mouse">Computer Mouse (Standard)</option>
               <option value="Trackpad">Laptop Trackpad</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="select-hand">Dominant Hand</label>
+            <label for="select-hand">Dominant Hand <span style="color: var(--danger);">*</span></label>
             <select id="select-hand">
+              <option value="" disabled selected>-- Select Handedness --</option>
               <option value="Right">Right Hand</option>
               <option value="Left">Left Hand</option>
             </select>
           </div>
         </div>
+
+        <div id="consent-feedback" style="display: none; padding: 10px 14px; margin-bottom: 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c;"></div>
 
         <label class="consent-checkbox-row">
           <input type="checkbox" id="chk-consent">
@@ -652,7 +660,8 @@
 
         <button id="btn-start" class="btn" disabled>I Agree & Begin Experiment</button>
 
-        <div class="sim-bar">
+        <!-- Simulation bar hidden so participants do not send simulated data -->
+        <div class="sim-bar" style="display: none;">
           <span>Experimenter Controls:</span>
           <button id="btn-run-sim" class="btn-xs">⚡ Run Simulated Session (Auto)</button>
         </div>
@@ -759,10 +768,11 @@
 
     // Participant State
     let participant = {
-      id: 'P01',
-      age: 23,
-      device: 'Mouse',
-      handedness: 'Right',
+      id: '',
+      name: '',
+      age: null,
+      device: '',
+      handedness: '',
       consentAgreed: false,
       consentTimestamp: null
     };
@@ -808,12 +818,14 @@
     const screenResults = document.getElementById('screen-results');
 
     const inputPid = document.getElementById('input-pid');
+    const inputName = document.getElementById('input-name');
     const inputAge = document.getElementById('input-age');
     const selectDevice = document.getElementById('select-device');
     const selectHand = document.getElementById('select-hand');
     const chkConsent = document.getElementById('chk-consent');
     const btnStart = document.getElementById('btn-start');
     const btnRunSim = document.getElementById('btn-run-sim');
+    const consentFeedback = document.getElementById('consent-feedback');
 
     const resumeBanner = document.getElementById('resume-banner');
     const resumeDetails = document.getElementById('resume-details');
@@ -951,13 +963,78 @@
       }
     });
 
-    // Consent Validation
-    function validateConsent() {
-      const ageVal = parseInt(inputAge.value, 10);
-      btnStart.disabled = !(chkConsent.checked && ageVal >= 18);
+    // Auto-Generate Participant ID (e.g. P04-8A3B)
+    function generateAutoParticipantId() {
+      const existing = localStorage.getItem('fitts_auto_pid');
+      if (existing && existing.startsWith('P')) {
+        return existing;
+      }
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const newId = `P_${randomSuffix}`;
+      try { localStorage.setItem('fitts_auto_pid', newId); } catch(e){}
+      return newId;
     }
-    chkConsent.addEventListener('change', validateConsent);
-    inputAge.addEventListener('input', validateConsent);
+
+    // Consent & Input Validation with Real-Time User Feedback
+    function validateConsent(showFeedbackMsg = false) {
+      const nameVal = inputName ? inputName.value.trim() : '';
+      const ageVal = parseInt(inputAge ? inputAge.value : '', 10);
+      const deviceVal = selectDevice ? selectDevice.value : '';
+      const handVal = selectHand ? selectHand.value : '';
+      const consentAgreed = chkConsent ? chkConsent.checked : false;
+
+      const errors = [];
+      if (!nameVal) {
+        errors.push('Full Name is required.');
+      }
+      if (isNaN(ageVal) || ageVal < 18 || ageVal > 99) {
+        errors.push('Age is required and must be 18 or older.');
+      }
+      if (!deviceVal) {
+        errors.push('Please select your Input Device.');
+      }
+      if (!handVal) {
+        errors.push('Please select your Dominant Hand.');
+      }
+      if (!consentAgreed) {
+        errors.push('You must check the informed consent checkbox to proceed.');
+      }
+
+      const isValid = errors.length === 0;
+      btnStart.disabled = !isValid;
+
+      if (consentFeedback) {
+        if (!isValid && showFeedbackMsg) {
+          consentFeedback.style.display = 'block';
+          consentFeedback.innerHTML = '<strong>⚠️ Please complete all required fields:</strong><ul style="margin: 6px 0 0 18px; padding: 0;">' + 
+            errors.map(err => `<li>${err}</li>`).join('') + '</ul>';
+        } else if (isValid) {
+          consentFeedback.style.display = 'none';
+          consentFeedback.innerHTML = '';
+        }
+      }
+
+      return isValid;
+    }
+
+    [inputName, inputAge, selectDevice, selectHand, chkConsent].forEach(el => {
+      if (el) {
+        el.addEventListener('input', () => validateConsent(chkConsent && chkConsent.checked));
+        el.addEventListener('change', () => validateConsent(chkConsent && chkConsent.checked));
+        el.addEventListener('blur', () => {
+          if (chkConsent && chkConsent.checked) {
+            validateConsent(true);
+          }
+        });
+      }
+    });
+
+    if (chkConsent) {
+      chkConsent.addEventListener('change', () => {
+        // When participant checks consent, immediately validate and show feedback for any remaining unfilled fields
+        validateConsent(chkConsent.checked);
+      });
+    }
 
     // Generate All 32 Distinct Tasks
     function generateBlockTasks() {
@@ -1013,7 +1090,9 @@
       line(50, 712, 562, 712, 2, 0.12, 0.23, 0.54);
 
       // Metadata Box
-      rect(50, 615, 512, 85, 0.96, 0.97, 0.99, 0.75, 0.82, 0.92);
+      rect(50, 615, 512, 100, 0.96, 0.97, 0.99, 0.75, 0.82, 0.92);
+      text('F2', 10, 65, 695, 'Participant Name:', 0.12, 0.23, 0.54);
+      text('F2', 10, 200, 695, p.name || '(not provided)', 0.06, 0.09, 0.16);
       text('F2', 10, 65, 680, 'Participant ID:', 0.12, 0.23, 0.54);
       text('F2', 10, 160, 680, p.id, 0.06, 0.09, 0.16);
       text('F2', 10, 310, 680, 'Assigned Device:', 0.12, 0.23, 0.54);
@@ -1055,7 +1134,7 @@
 
       text('F2', 10, 65, 296, '[X] AGREED AND CONFIRMED', 0.08, 0.55, 0.22);
       text('F1', 9, 65, 280, 'I have read the informed consent statement, am 18+ years of age, and freely agree to participate in this study.', 0.15, 0.2, 0.28);
-      text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by Participant ' + p.id, 0.08, 0.5, 0.2);
+      text('F2', 9.5, 65, 260, 'Digital Signature: Electronic Agreement by ' + (p.name || p.id) + ' (ID: ' + p.id + ')', 0.08, 0.5, 0.2);
       text('F1', 8.5, 65, 244, 'Timestamp: ' + (p.consentTimestamp || new Date().toLocaleString()) + ' | Workstation: HCI-Lab-Station-04', 0.35, 0.45, 0.4);
       text('F1', 8.5, 65, 232, 'Verification Hash: SHA256:' + Math.abs((p.id + p.age).split('').reduce((a, c) => ((a << 5) - a) + c.charCodeAt(0), 0)).toString(16).toUpperCase() + '-IRB-VERIFIED', 0.35, 0.45, 0.4);
 
@@ -1169,6 +1248,7 @@
         const payload = {
           action: 'save_results',
           participantId: p.id,
+          participantName: p.name || '',
           submittedAt: new Date().toISOString(),
           trials: trials,
           summary: summaryData
@@ -1202,8 +1282,12 @@
 
     // Start Experiment Trigger
     btnStart.addEventListener('click', () => {
-      participant.id = inputPid.value.trim() || 'P01';
-      participant.age = parseInt(inputAge.value, 10) || 20;
+      // Belt-and-suspenders validation — also checked via disabled button state
+      if (!validateConsent(true)) return;
+
+      participant.id = inputPid.value.trim() || generateAutoParticipantId();
+      participant.name = inputName ? inputName.value.trim() : '';
+      participant.age = parseInt(inputAge.value, 10);
       participant.device = selectDevice.value;
       participant.handedness = selectHand.value;
       participant.consentAgreed = true;
@@ -1512,6 +1596,7 @@
 
       // Automatically Send All 320 Trials to Google Sheets Master Database!
       const summaryPayload = {
+        name: participant.name || '',
         age: participant.age,
         device: participant.device,
         handedness: participant.handedness,
@@ -1697,10 +1782,11 @@
 
     // Automated Session Runner (Simulation for Demonstrations/Verification)
     btnRunSim.addEventListener('click', () => {
-      participant.id = inputPid.value.trim() || 'P01';
+      participant.id = inputPid.value.trim() || generateAutoParticipantId();
+      participant.name = (inputName && inputName.value.trim()) ? inputName.value.trim() : 'SimUser';
       participant.age = parseInt(inputAge.value, 10) || 22;
-      participant.device = selectDevice.value;
-      participant.handedness = selectHand.value;
+      participant.device = selectDevice.value || 'Mouse';
+      participant.handedness = selectHand.value || 'Right';
       participant.consentAgreed = true;
       participant.consentTimestamp = new Date().toLocaleString();
 
@@ -1757,6 +1843,9 @@
 
     // Check for existing session on page load
     window.addEventListener('DOMContentLoaded', () => {
+      // Auto-assign a unique Participant ID and display it in the (read-only) field
+      const autoId = generateAutoParticipantId();
+      if (inputPid) inputPid.value = autoId;
       checkResumeSession();
     });
 
